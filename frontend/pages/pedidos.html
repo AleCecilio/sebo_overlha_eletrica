@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meus Pedidos — Sebo Online</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .pedido-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      transition: box-shadow var(--transition);
+    }
+    .pedido-card:hover { box-shadow: var(--shadow-md); }
+    .pedido-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pedido-id {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .status-PAGO      { background: #dcfce7; color: #15803d; }
+    .status-PENDENTE  { background: #fef9c3; color: #854d0e; }
+    .status-ENVIADO   { background: #dbeafe; color: #1d4ed8; }
+    .status-ENTREGUE  { background: #ede9fe; color: #6d28d9; }
+    .status-CANCELADO { background: #fee2e2; color: #b91c1c; }
+    body.dark .status-PAGO      { background: #14532d; color: #86efac; }
+    body.dark .status-PENDENTE  { background: #422006; color: #fde68a; }
+    body.dark .status-ENVIADO   { background: #1e3a5f; color: #93c5fd; }
+    body.dark .status-ENTREGUE  { background: #3b0764; color: #c4b5fd; }
+    body.dark .status-CANCELADO { background: #7f1d1d; color: #fca5a5; }
+    .pedido-meta {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: .85rem;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+    .pedido-meta span strong { color: var(--text); }
+    .pedido-livros {
+      font-size: .88rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+    .pedido-total {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 32px 0 24px;
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a class="navbar-brand" href="../index.html">📚 <span>Sebo</span>Online</a>
+  <div class="navbar-search">
+    <input type="text" id="search-input" placeholder="Buscar livros...">
+    <button onclick="window.location.href='../index.html'">🔍</button>
+  </div>
+  <div class="navbar-actions">
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Tema">🌙</button>
+    <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()">
+      🛒 <span class="cart-badge" style="display:none">0</span>
+    </button>
+    <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
+    <button class="btn btn-outline" id="btn-logout" onclick="window.SeBoApp.logout(); window.location='../index.html'" style="height:36px;padding:0 16px;display:none">Sair</button>
+    <button class="btn btn-primary" id="btn-login" onclick="window.LoginModal.abrir()" style="height:36px;padding:0 16px">Entrar</button>
+  </div>
+</nav>
+
+<!-- ── Conteúdo ────────────────────────────────────────────────────────────── -->
+<main class="container">
+  <div class="page-header">
+    <h1>📦 Meus Pedidos</h1>
+    <a href="../index.html" class="btn btn-outline">← Continuar comprando</a>
+  </div>
+  <div id="pedidos-container">
+    <div style="text-align:center;padding:64px;color:var(--text-muted)">Carregando pedidos...</div>
+  </div>
+</main>
+
+<!-- ── Carrinho Lateral ────────────────────────────────────────────────────── -->
+<aside class="cart-drawer" id="cart-drawer">
+  <div class="cart-header">
+    <span>Meu Carrinho</span>
+    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()">✕</button>
+  </div>
+  <div class="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total</span><span>R$ 0,00</span></div>
+    <button class="btn btn-success" style="width:100%" onclick="window.Checkout.abrir()">Finalizar Compra</button>
+  </div>
+</aside>
+
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/login.js"></script>
+<script src="../assets/js/checkout.js"></script>
+<script>
+  const ICONES_STATUS = {
+    PAGO: '✅', PENDENTE: '⏳', ENVIADO: '🚚', ENTREGUE: '🏡', CANCELADO: '❌'
+  };
+  const ICONES_PGTO = { PIX: '⚡', CARTAO: '💳' };
+
+  async function carregarPedidos() {
+    const container = document.getElementById('pedidos-container');
+
+    if (!window.SeBoApp.state.usuario) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">🔐</div>
+          <h3>Acesso restrito</h3>
+          <p>Faça login para visualizar seus pedidos.</p>
+          <br>
+          <button class="btn btn-primary" onclick="window.LoginModal.abrir()">Fazer Login</button>
+        </div>`;
+      return;
+    }
+
+    try {
+      const data = await window.SeBoApp.apiFetch('/pedidos/meus');
+
+      if (!data.pedidos || data.pedidos.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <h3>Nenhum pedido ainda</h3>
+            <p>Você ainda não realizou nenhuma compra.</p>
+            <br>
+            <a href="../index.html" class="btn btn-primary">Ver Catálogo</a>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = data.pedidos.map(p => {
+        const data_fmt = new Date(p.criado_em).toLocaleDateString('pt-BR', {
+          day: '2-digit', month: 'long', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        const livrosArr = p.livros ? p.livros.split(' | ') : [];
+
+        return `
+          <div class="pedido-card">
+            <div class="pedido-header">
+              <div class="pedido-id">Pedido #${p.id}</div>
+              <span class="status-badge status-${p.status}">
+                ${ICONES_STATUS[p.status] || ''} ${p.status}
+              </span>
+            </div>
+            <div class="pedido-meta">
+              <span>📅 <strong>${data_fmt}</strong></span>
+              <span>${ICONES_PGTO[p.forma_pagamento] || ''} <strong>${p.forma_pagamento}</strong></span>
+              <span class="pedido-total">R$ ${parseFloat(p.total).toFixed(2).replace('.',',')}</span>
+            </div>
+            <div class="pedido-livros">
+              <strong>📚 Livros:</strong><br>
+              ${livrosArr.map(l => `• ${l.trim()}`).join('<br>')}
+            </div>
+          </div>`;
+      }).join('');
+
+    } catch (e) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">⚠️</div>
+          <h3>Erro ao carregar pedidos</h3>
+          <p>${e.mensagem || 'Verifique se o servidor está online.'}</p>
+        </div>`;
+    }
+  }
+
+  window.SeBoApp.atualizarBadgeCarrinho();
+  window.SeBoApp.atualizarUIAuth();
+  carregarPedidos();
+</script>
+</body>
+</html>

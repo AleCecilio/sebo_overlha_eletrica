@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sebo Online — Livros Usados com História</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <meta name="description" content="Sebo Online: encontre livros usados com ótimo estado de conservação a preços acessíveis.">
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">
+    📚 <span>Sebo</span>Online
+  </a>
+
+  <div class="navbar-search">
+    <input type="text" id="search-input" placeholder="Buscar por título, autor ou ISBN..." aria-label="Buscar livros">
+    <button onclick="buscar()" aria-label="Pesquisar">🔍</button>
+  </div>
+
+  <div class="navbar-actions">
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema">🌙</button>
+    <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()" title="Carrinho" aria-label="Abrir carrinho">
+      🛒 <span class="cart-badge" style="display:none">0</span>
+    </button>
+    <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
+    <a id="btn-pedidos" href="pages/pedidos.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem">📦 Pedidos</a>
+    <a id="btn-admin" href="pages/admin.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem">⚙️ Admin</a>
+    <button class="btn btn-primary" id="btn-login" onclick="window.LoginModal.abrir()" style="height:36px;padding:0 16px">
+      Entrar
+    </button>
+    <button class="btn btn-outline" id="btn-logout" onclick="window.SeBoApp.logout()" style="display:none;height:36px;padding:0 16px">
+      Sair
+    </button>
+  </div>
+</nav>
+
+<!-- ── Hero ───────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <h1>Livros com <em>história</em>,<br>preços que fazem sentido.</h1>
+  <p>Encontre títulos usados em ótimo estado. Cada livro tem uma nova jornada pela frente.</p>
+</section>
+
+<!-- ── Filtros ─────────────────────────────────────────────────────────────── -->
+<div class="filters-bar">
+  <label>Filtrar por:</label>
+  <select id="filtro-genero" onchange="aplicarFiltros()">
+    <option value="">Todos os Gêneros</option>
+    <option value="Romance">Romance</option>
+    <option value="Fantasia">Fantasia</option>
+    <option value="Distopia">Distopia</option>
+    <option value="Ficção">Ficção</option>
+    <option value="História">História</option>
+    <option value="Infantojuvenil">Infantojuvenil</option>
+    <option value="Biografia">Biografia</option>
+    <option value="Autoajuda">Autoajuda</option>
+  </select>
+
+  <select id="filtro-conservacao" onchange="aplicarFiltros()">
+    <option value="">Qualquer Estado</option>
+    <option value="Novo">Novo</option>
+    <option value="Ótimo">Ótimo</option>
+    <option value="Bom">Bom</option>
+    <option value="Regular">Regular</option>
+    <option value="Com Defeito">Com Defeito</option>
+  </select>
+</div>
+
+<!-- ── Catálogo ────────────────────────────────────────────────────────────── -->
+<main class="container">
+  <h2 class="section-title">Catálogo</h2>
+  <div class="books-grid" id="books-grid">
+    <!-- preenchido via JS -->
+  </div>
+  <div class="pagination" id="pagination"></div>
+</main>
+
+<!-- ── Carrinho Lateral ────────────────────────────────────────────────────── -->
+<aside class="cart-drawer" id="cart-drawer">
+  <div class="cart-header">
+    <span>Meu Carrinho</span>
+    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()">✕</button>
+  </div>
+  <div class="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span>R$ 0,00</span>
+    </div>
+    <button class="btn btn-success" style="width:100%" onclick="window.Checkout.abrir()">
+      Finalizar Compra
+    </button>
+  </div>
+</aside>
+
+<!-- ── Scripts ─────────────────────────────────────────────────────────────── -->
+<script src="assets/js/app.js"></script>
+<script src="assets/js/login.js"></script>
+<script src="assets/js/checkout.js"></script>
+<script>
+  // ── Estado de paginação / filtros ──────────────────────────────────────
+  let paginaAtual = 1;
+  const LIMITE = 12;
+
+  // ── Carrega livros ─────────────────────────────────────────────────────
+  async function carregarLivros(pagina = 1) {
+    paginaAtual = pagina;
+    const busca       = document.getElementById('search-input').value.trim();
+    const genero      = document.getElementById('filtro-genero').value;
+    const conservacao = document.getElementById('filtro-conservacao').value;
+
+    const params = new URLSearchParams({ pagina, limite: LIMITE });
+    if (busca)       params.set('busca', busca);
+    if (genero)      params.set('genero', genero);
+    if (conservacao) params.set('conservacao', conservacao);
+
+    const grid = document.getElementById('books-grid');
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted)">Carregando...</div>';
+
+    try {
+      const data = await window.SeBoApp.apiFetch(`/listar?${params}`);
+      renderizarGrid(data.livros);
+      renderizarPaginacao(data.paginas, data.pagina);
+    } catch (e) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="icon">⚠️</div>
+          <h3>Servidor offline</h3>
+          <p>Verifique se o back-end está rodando em <code>localhost:3000</code></p>
+        </div>`;
+    }
+  }
+
+  function renderizarGrid(livros) {
+    const grid = document.getElementById('books-grid');
+    if (!livros || livros.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="icon">📭</div>
+          <h3>Nenhum livro encontrado</h3>
+          <p>Tente outros termos de busca ou remova os filtros.</p>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = livros.map(l => {
+      const badgeClass = {
+        'Novo': 'novo', 'Ótimo': 'otimo', 'Bom': 'bom',
+        'Regular': 'regular', 'Com Defeito': 'defeito'
+      }[l.conservacao] || 'bom';
+
+      return `
+        <article class="book-card" onclick="verDetalhes(${l.id})">
+          <div class="book-cover">
+            ${l.capa_url
+              ? `<img src="${l.capa_url}" alt="${l.titulo}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+              : ''}
+            <div class="no-cover" ${l.capa_url ? 'style="display:none"' : ''}>
+              <span class="icon">📚</span>
+              <span>Sem capa</span>
+            </div>
+            <span class="conservacao-badge ${badgeClass}">${l.conservacao}</span>
+          </div>
+          <div class="book-info">
+            <div class="book-title">${l.titulo}</div>
+            <div class="book-author">${l.autor}</div>
+            <div class="book-price">R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</div>
+            <button class="btn-add-cart" onclick="event.stopPropagation(); adicionarCarrinho(${l.id}, '${encodeURIComponent(JSON.stringify(l))}')">
+              + Adicionar
+            </button>
+          </div>
+        </article>`;
+    }).join('');
+  }
+
+  function renderizarPaginacao(totalPaginas, paginaAtualNum) {
+    const container = document.getElementById('pagination');
+    if (totalPaginas <= 1) { container.innerHTML = ''; return; }
+
+    let html = '';
+    if (paginaAtualNum > 1) html += `<button onclick="carregarLivros(${paginaAtualNum - 1})">‹</button>`;
+    for (let i = 1; i <= totalPaginas; i++) {
+      html += `<button onclick="carregarLivros(${i})" class="${i === paginaAtualNum ? 'active' : ''}">${i}</button>`;
+    }
+    if (paginaAtualNum < totalPaginas) html += `<button onclick="carregarLivros(${paginaAtualNum + 1})">›</button>`;
+    container.innerHTML = html;
+  }
+
+  // ── Ações ──────────────────────────────────────────────────────────────
+  function buscar() {
+    carregarLivros(1);
+  }
+
+  function aplicarFiltros() {
+    carregarLivros(1);
+  }
+
+  function verDetalhes(id) {
+    window.location.href = `pages/detalhes.html?id=${id}`;
+  }
+
+  function adicionarCarrinho(id, livroEncoded) {
+    const livro = JSON.parse(decodeURIComponent(livroEncoded));
+    window.SeBoApp.adicionarAoCarrinho(livro);
+  }
+
+  // ── Enter para buscar ──────────────────────────────────────────────────
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') buscar();
+  });
+
+  // ── Inicialização ──────────────────────────────────────────────────────
+  window.SeBoApp.atualizarBadgeCarrinho();
+  window.SeBoApp.atualizarUIAuth();
+  carregarLivros();
+</script>
+</body>
+</html>

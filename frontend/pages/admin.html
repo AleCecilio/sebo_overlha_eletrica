@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Admin — Sebo Online</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 56px); }
+    .admin-sidebar {
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+    }
+    .sidebar-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0 20px 16px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      color: var(--text-secondary);
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      background: var(--surface);
+      color: var(--primary);
+    }
+    .admin-content { padding: 32px; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      background: var(--surface);
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+    tr:hover td { background: var(--bg-secondary); }
+    .btn-sm { height: 30px; padding: 0 12px; font-size: .8rem; border-radius: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  </style>
+</head>
+<body>
+<nav class="navbar">
+  <a class="navbar-brand" href="../index.html">📚 <span>Sebo</span>Online</a>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+    <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
+    <span style="font-size:.75rem;background:var(--primary);color:#fff;padding:3px 10px;border-radius:20px;font-weight:700">ADMIN</span>
+    <button class="btn btn-outline" onclick="window.SeBoApp.logout();window.location='../index.html'" style="height:36px;padding:0 16px">Sair</button>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-title">Painel Admin</div>
+    <div class="sidebar-link active" onclick="mostrarSecao('livros')">📚 Gerenciar Livros</div>
+    <div class="sidebar-link" onclick="mostrarSecao('cadastrar')">➕ Cadastrar Livro</div>
+    <div class="sidebar-link" onclick="window.location='../index.html'">🏚 Ver Vitrine</div>
+  </aside>
+
+  <main class="admin-content">
+    <!-- SEÇÃO: Lista de Livros -->
+    <section id="secao-livros">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <h2 style="font-family:var(--font-display);font-size:1.6rem">Gerenciar Livros</h2>
+        <button class="btn btn-primary btn-sm" onclick="mostrarSecao('cadastrar')">+ Novo Livro</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Título</th><th>Autor</th><th>Estado</th>
+              <th>Preço</th><th>Estoque</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-livros">
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SEÇÃO: Cadastrar / Editar -->
+    <section id="secao-cadastrar" style="display:none">
+      <h2 style="font-family:var(--font-display);font-size:1.6rem;margin-bottom:24px" id="form-titulo">Cadastrar Livro</h2>
+      <input type="hidden" id="edit-id">
+      <div class="form-row">
+        <div class="form-group"><label>Título *</label><input type="text" id="f-titulo" placeholder="Dom Casmurro"></div>
+        <div class="form-group"><label>Autor *</label><input type="text" id="f-autor" placeholder="Machado de Assis"></div>
+        <div class="form-group"><label>ISBN</label><input type="text" id="f-isbn" placeholder="978-..."></div>
+        <div class="form-group"><label>Editora</label><input type="text" id="f-editora" placeholder="Companhia das Letras"></div>
+        <div class="form-group"><label>Ano de Publicação</label><input type="number" id="f-ano" placeholder="2020" min="1800" max="2025"></div>
+        <div class="form-group"><label>Gênero</label><input type="text" id="f-genero" placeholder="Romance"></div>
+        <div class="form-group">
+          <label>Estado de Conservação *</label>
+          <select id="f-conservacao">
+            <option value="Novo">Novo</option>
+            <option value="Ótimo">Ótimo</option>
+            <option value="Bom" selected>Bom</option>
+            <option value="Regular">Regular</option>
+            <option value="Com Defeito">Com Defeito</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Preço (R$) *</label><input type="number" id="f-preco" step="0.01" placeholder="29.90" min="0"></div>
+        <div class="form-group"><label>Estoque *</label><input type="number" id="f-estoque" placeholder="1" min="0" value="1"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>URL da Capa</label><input type="url" id="f-capa" placeholder="https://..."></div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label>Sinopse</label>
+          <textarea id="f-sinopse" rows="4" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg-secondary);color:var(--text);font-family:var(--font-body);resize:vertical"></textarea>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button class="btn btn-primary" onclick="salvarLivro()" id="btn-salvar">Salvar Livro</button>
+        <button class="btn btn-outline" onclick="resetarForm()">Cancelar</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="../assets/js/app.js"></script>
+<script>
+  // Redireciona se não for admin
+  document.addEventListener('DOMContentLoaded', () => {
+    const u = window.SeBoApp.state.usuario;
+    if (!u || u.perfil !== 'ADMIN') {
+      window.SeBoApp.toast('Acesso restrito a administradores.', 'error');
+      setTimeout(() => window.location.href = '../index.html', 1500);
+      return;
+    }
+    const info = document.getElementById('user-info');
+    if (info) info.textContent = u.nome.split(' ')[0];
+    carregarLivrosAdmin();
+  });
+
+  function mostrarSecao(id) {
+    document.getElementById('secao-livros').style.display    = id === 'livros'     ? 'block' : 'none';
+    document.getElementById('secao-cadastrar').style.display = id === 'cadastrar'  ? 'block' : 'none';
+    document.querySelectorAll('.sidebar-link').forEach((el,i) => {
+      el.classList.toggle('active', (i === 0 && id === 'livros') || (i === 1 && id === 'cadastrar'));
+    });
+  }
+
+  async function carregarLivrosAdmin() {
+    const tbody = document.getElementById('tabela-livros');
+    try {
+      const data = await window.SeBoApp.apiFetch('/listar?limite=100');
+      if (!data.livros.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Nenhum livro cadastrado.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.livros.map(l => `
+        <tr>
+          <td>#${l.id}</td>
+          <td><strong>${l.titulo}</strong></td>
+          <td>${l.autor}</td>
+          <td><span class="conservacao-badge ${getBadgeClass(l.conservacao)}" style="position:static;font-size:.75rem">${l.conservacao}</span></td>
+          <td>R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</td>
+          <td>${l.estoque}</td>
+          <td style="display:flex;gap:6px">
+            <button class="btn btn-outline btn-sm" onclick="editarLivro(${l.id})">✏️ Editar</button>
+            <button class="btn btn-sm" style="background:var(--primary);color:#fff" onclick="deletarLivro(${l.id},'${l.titulo.replace(/'/g,"\\'")}')">🗑 Remover</button>
+          </td>
+        </tr>`).join('');
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="7" style="color:var(--primary);padding:20px">${e.mensagem || 'Erro ao carregar livros.'}</td></tr>`;
+    }
+  }
+
+  function getBadgeClass(c) {
+    return { 'Novo':'novo','Ótimo':'otimo','Bom':'bom','Regular':'regular','Com Defeito':'defeito' }[c] || 'bom';
+  }
+
+  async function editarLivro(id) {
+    try {
+      const data = await window.SeBoApp.apiFetch(`/buscar/${id}`);
+      const l = data.livro;
+      document.getElementById('edit-id').value       = l.id;
+      document.getElementById('f-titulo').value      = l.titulo;
+      document.getElementById('f-autor').value       = l.autor;
+      document.getElementById('f-isbn').value        = l.isbn        || '';
+      document.getElementById('f-editora').value     = l.editora     || '';
+      document.getElementById('f-ano').value         = l.ano_publicacao || '';
+      document.getElementById('f-genero').value      = l.genero      || '';
+      document.getElementById('f-conservacao').value = l.conservacao;
+      document.getElementById('f-preco').value       = l.preco;
+      document.getElementById('f-estoque').value     = l.estoque;
+      document.getElementById('f-capa').value        = l.capa_url    || '';
+      document.getElementById('f-sinopse').value     = l.sinopse     || '';
+      document.getElementById('form-titulo').textContent = 'Editar Livro';
+      mostrarSecao('cadastrar');
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao carregar livro.', 'error');
+    }
+  }
+
+  async function salvarLivro() {
+    const editId = document.getElementById('edit-id').value;
+    const body = {
+      titulo:        document.getElementById('f-titulo').value.trim(),
+      autor:         document.getElementById('f-autor').value.trim(),
+      isbn:          document.getElementById('f-isbn').value.trim(),
+      editora:       document.getElementById('f-editora').value.trim(),
+      ano_publicacao:document.getElementById('f-ano').value || null,
+      genero:        document.getElementById('f-genero').value.trim(),
+      conservacao:   document.getElementById('f-conservacao').value,
+      preco:         document.getElementById('f-preco').value,
+      estoque:       document.getElementById('f-estoque').value,
+      capa_url:      document.getElementById('f-capa').value.trim(),
+      sinopse:       document.getElementById('f-sinopse').value.trim(),
+    };
+
+    if (!body.titulo || !body.autor || !body.preco) {
+      window.SeBoApp.toast('Preencha título, autor e preço.', 'error'); return;
+    }
+
+    const btn = document.getElementById('btn-salvar');
+    btn.innerHTML = '<span class="spinner"></span>';
+    btn.disabled = true;
+
+    try {
+      if (editId) {
+        await window.SeBoApp.apiFetch(`/editar/${editId}`, { method: 'PUT', body: JSON.stringify(body) });
+        window.SeBoApp.toast('Livro atualizado!', 'success');
+      } else {
+        await window.SeBoApp.apiFetch('/salvar', { method: 'POST', body: JSON.stringify(body) });
+        window.SeBoApp.toast('Livro cadastrado!', 'success');
+      }
+      resetarForm();
+      mostrarSecao('livros');
+      carregarLivrosAdmin();
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao salvar.', 'error');
+    } finally {
+      btn.innerHTML = 'Salvar Livro';
+      btn.disabled = false;
+    }
+  }
+
+  async function deletarLivro(id, titulo) {
+    if (!confirm(`Remover "${titulo}" do catálogo?`)) return;
+    try {
+      await window.SeBoApp.apiFetch(`/deletar/${id}`, { method: 'DELETE' });
+      window.SeBoApp.toast('Livro removido.', 'success');
+      carregarLivrosAdmin();
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao remover.', 'error');
+    }
+  }
+
+  function resetarForm() {
+    ['f-titulo','f-autor','f-isbn','f-editora','f-ano','f-genero','f-preco','f-capa','f-sinopse'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-estoque').value    = '1';
+    document.getElementById('f-conservacao').value = 'Bom';
+    document.getElementById('edit-id').value      = '';
+    document.getElementById('form-titulo').textContent = 'Cadastrar Livro';
+  }
+</script>
+</body>
+</html>
