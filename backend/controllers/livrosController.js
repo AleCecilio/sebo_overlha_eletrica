@@ -10,10 +10,14 @@ const db = require('../config/db');
 // ────────────────────────────────────────────────────────────────────────────
 async function listar(req, res) {
   try {
-    const { busca, genero, conservacao, pagina = 1, limite = 12 } = req.query;
+    const busca       = req.query.busca       || null;
+    const genero      = req.query.genero      || null;
+    const conservacao = req.query.conservacao || null;
+    const pagina      = Math.max(1, parseInt(req.query.pagina)  || 1);
+    const limite      = Math.min(100, parseInt(req.query.limite) || 12);
+    const offset      = (pagina - 1) * limite;
 
-    const offset = (parseInt(pagina) - 1) * parseInt(limite);
-    const params = [];
+    const params    = [];
     const condicoes = ['l.ativo = 1', 'l.estoque > 0'];
 
     if (busca) {
@@ -30,32 +34,30 @@ async function listar(req, res) {
       params.push(conservacao);
     }
 
-    const where = condicoes.length ? `WHERE ${condicoes.join(' AND ')}` : '';
+    const where = `WHERE ${condicoes.join(' AND ')}`;
 
-    // Total de registros para paginação
+    // COUNT — usa execute normalmente (sem LIMIT/OFFSET)
     const [countRows] = await db.execute(
       `SELECT COUNT(*) AS total FROM livros l ${where}`,
       params
     );
-    const total = countRows[0].total;
+    const total = Number(countRows[0].total);
 
-    // Registros da página
-    const limiteNum = Number(limite);
-    const offsetNum = Number(offset);
-
+    // Listagem — parâmetros de paginação interpolados diretamente
+    // (valores já são inteiros validados acima, sem risco de injeção)
     const [livros] = await db.execute(
-      `SELECT id, titulo, autor, genero, conservacao, preco, estoque, capa_url, ano_publicacao
-      FROM livros l ${where}
-      ORDER BY criado_em DESC
-      LIMIT ${limiteNum} OFFSET ${offsetNum}`,
+      `SELECT id, titulo, autor, genero, conservacao, preco, estoque, imagem_url, ano_publicacao
+       FROM livros l ${where}
+       ORDER BY criado_em DESC
+       LIMIT ${limite} OFFSET ${offset}`,
       params
     );
 
     return res.status(200).json({
       total,
-      pagina:   parseInt(pagina),
-      limite:   parseInt(limite),
-      paginas:  Math.ceil(total / parseInt(limite)),
+      pagina,
+      limite,
+      paginas: Math.ceil(total / limite),
       livros,
     });
 
@@ -67,7 +69,6 @@ async function listar(req, res) {
 
 // ────────────────────────────────────────────────────────────────────────────
 // GET /buscar/:id
-// Detalhes completos de um livro
 // ────────────────────────────────────────────────────────────────────────────
 async function buscarPorId(req, res) {
   try {
@@ -97,7 +98,7 @@ async function salvar(req, res) {
   try {
     const {
       titulo, autor, isbn, editora, ano_publicacao,
-      genero, sinopse, conservacao, preco, estoque, capa_url
+      genero, sinopse, conservacao, preco, estoque, imagem_url
     } = req.body;
 
     if (!titulo || !autor || !preco || !conservacao) {
@@ -111,11 +112,11 @@ async function salvar(req, res) {
 
     const [result] = await db.execute(
       `INSERT INTO livros
-         (titulo, autor, isbn, editora, ano_publicacao, genero, sinopse, conservacao, preco, estoque, capa_url)
+         (titulo, autor, isbn, editora, ano_publicacao, genero, sinopse, conservacao, preco, estoque, imagem_url)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [titulo, autor, isbn || null, editora || null, ano_publicacao || null,
        genero || null, sinopse || null, conservacao,
-       parseFloat(preco), parseInt(estoque) || 1, capa_url || null]
+       parseFloat(preco), parseInt(estoque) || 1, imagem_url || null]
     );
 
     return res.status(201).json({
@@ -138,7 +139,7 @@ async function editar(req, res) {
     const campos = req.body;
 
     const permitidos = ['titulo','autor','isbn','editora','ano_publicacao',
-                        'genero','sinopse','conservacao','preco','estoque','capa_url','ativo'];
+                        'genero','sinopse','conservacao','preco','estoque','imagem_url','ativo'];
 
     const sets   = [];
     const params = [];
@@ -174,7 +175,6 @@ async function editar(req, res) {
 
 // ────────────────────────────────────────────────────────────────────────────
 // DELETE /deletar/:id  [ADMIN]
-// Soft delete: apenas desativa o livro
 // ────────────────────────────────────────────────────────────────────────────
 async function deletar(req, res) {
   try {

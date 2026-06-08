@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meus Pedidos — Sebo Online</title>
+  <title>Meus Pedidos — Sebo Ovelha Elétrica</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <style>
     .pedido-card {
@@ -87,15 +87,16 @@
 
 <!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
 <nav class="navbar">
-  <a class="navbar-brand" href="../index.html">📚 <span>Sebo</span>Online</a>
+  <a class="navbar-brand" href="../index.html">
+    <img src="../assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha"> <span>Sebo</span> Ovelha Elétrica</a>
   <div class="navbar-search">
     <input type="text" id="search-input" placeholder="Buscar livros...">
-    <button onclick="window.location.href='../index.html'">🔍</button>
+    <button onclick="window.location.href='../index.html'"></button>
   </div>
   <div class="navbar-actions">
-    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Tema">🌙</button>
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Tema"></button>
     <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()">
-      🛒 <span class="cart-badge" style="display:none">0</span>
+       <span class="cart-badge" style="display:none">0</span>
     </button>
     <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
     <button class="btn btn-outline" id="btn-logout" onclick="window.SeBoApp.logout(); window.location='../index.html'" style="height:36px;padding:0 16px;display:none">Sair</button>
@@ -106,7 +107,7 @@
 <!-- ── Conteúdo ────────────────────────────────────────────────────────────── -->
 <main class="container">
   <div class="page-header">
-    <h1>📦 Meus Pedidos</h1>
+    <h1> Meus Pedidos</h1>
     <a href="../index.html" class="btn btn-outline">← Continuar comprando</a>
   </div>
   <div id="pedidos-container">
@@ -118,7 +119,7 @@
 <aside class="cart-drawer" id="cart-drawer">
   <div class="cart-header">
     <span>Meu Carrinho</span>
-    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()">✕</button>
+    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()"></button>
   </div>
   <div class="cart-items"></div>
   <div class="cart-footer">
@@ -132,9 +133,9 @@
 <script src="../assets/js/checkout.js"></script>
 <script>
   const ICONES_STATUS = {
-    PAGO: '✅', PENDENTE: '⏳', ENVIADO: '🚚', ENTREGUE: '🏡', CANCELADO: '❌'
+    PAGO: '', PENDENTE: '', ENVIADO: '', ENTREGUE: '', CANCELADO: ''
   };
-  const ICONES_PGTO = { PIX: '⚡', CARTAO: '💳' };
+  const ICONES_PGTO = { PIX: '', CARTAO: '' };
 
   async function carregarPedidos() {
     const container = document.getElementById('pedidos-container');
@@ -142,7 +143,7 @@
     if (!window.SeBoApp.state.usuario) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="icon">🔐</div>
+          <div class="icon"></div>
           <h3>Acesso restrito</h3>
           <p>Faça login para visualizar seus pedidos.</p>
           <br>
@@ -157,7 +158,7 @@
       if (!data.pedidos || data.pedidos.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
-            <div class="icon">📭</div>
+            <div class="icon"></div>
             <h3>Nenhum pedido ainda</h3>
             <p>Você ainda não realizou nenhuma compra.</p>
             <br>
@@ -182,12 +183,12 @@
               </span>
             </div>
             <div class="pedido-meta">
-              <span>📅 <strong>${data_fmt}</strong></span>
+              <span> <strong>${data_fmt}</strong></span>
               <span>${ICONES_PGTO[p.forma_pagamento] || ''} <strong>${p.forma_pagamento}</strong></span>
               <span class="pedido-total">R$ ${parseFloat(p.total).toFixed(2).replace('.',',')}</span>
             </div>
             <div class="pedido-livros">
-              <strong>📚 Livros:</strong><br>
+              <strong> Livros:</strong><br>
               ${livrosArr.map(l => `• ${l.trim()}`).join('<br>')}
             </div>
           </div>`;
@@ -196,7 +197,7 @@
     } catch (e) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="icon">⚠️</div>
+          <div class="icon">️</div>
           <h3>Erro ao carregar pedidos</h3>
           <p>${e.mensagem || 'Verifique se o servidor está online.'}</p>
         </div>`;

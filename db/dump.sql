@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS livros (
   conservacao     ENUM('Novo','Ótimo','Bom','Regular','Com Defeito') NOT NULL DEFAULT 'Bom',
   preco           DECIMAL(10,2)    NOT NULL,
   estoque         INT UNSIGNED     NOT NULL DEFAULT 1,
-  capa_url        VARCHAR(500),
+  imagem_url      VARCHAR(500),
   ativo           TINYINT(1)       NOT NULL DEFAULT 1,
   criado_em       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
   atualizado_em   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -118,6 +118,19 @@ CREATE INDEX idx_tokens_expira  ON tokens_2fa(expira_em);
 -- ============================================================
 -- DADOS INICIAIS
 -- ============================================================
+-- CARGA DE LIVROS
+-- Os INSERTs de livros são gerados automaticamente pelo script
+-- Python localizado em: db/gerar_inserts.py
+--
+-- Para gerar o arquivo com os dados reais do dataset Kaggle:
+--   1. Baixe o CSV em https://www.kaggle.com/datasets/jealousleopard/goodreadsbooks
+--      (ou outro dataset de livros com capa_url)
+--   2. Execute: python3 db/gerar_inserts.py caminho/para/books.csv
+--   3. O script criará db/livros_inserts.sql com os INSERTs prontos
+--   4. Importe: mysql -u root -p sebo_online < db/livros_inserts.sql
+-- ============================================================
+
+-- ============================================================
 
 -- Senha: Admin@123 (bcrypt hash)
 INSERT INTO usuarios (nome, email, cpf, telefone, senha_hash, perfil) VALUES
@@ -150,108 +163,3 @@ INSERT INTO enderecos (usuario_id, cep, logradouro, numero, bairro, cidade, esta
 (2, '37902-144', 'Rua das Flores', '42', 'Centro', 'Passos', 'MG', 1),
 (3, '37901-000', 'Av. Getúlio Vargas', '100', 'Bairro Novo', 'Passos', 'MG', 1);
 
-INSERT INTO livros (titulo, autor, isbn, editora, ano_publicacao, genero, sinopse, conservacao, preco, estoque, capa_url) VALUES
-(
-  'Dom Casmurro',
-  'Machado de Assis',
-  '978-8503008273',
-  'L&PM Pocket',
-  2006,
-  'Romance',
-  'Clássico da literatura brasileira que narra a história de Bentinho e Capitu, levantando a questão da traição e dos ciúmes no século XIX.',
-  'Bom',
-  12.90,
-  3,
-  'https://m.media-amazon.com/images/I/71rJNZ7KNRL._AC_UF1000,1000_QL80_.jpg'
-),
-(
-  'O Senhor dos Anéis: A Sociedade do Anel',
-  'J.R.R. Tolkien',
-  '978-8578276195',
-  'Martins Fontes',
-  2019,
-  'Fantasia',
-  'A jornada épica de Frodo Bolseiro para destruir o Um Anel e salvar a Terra Média das garras do Senhor das Trevas Sauron.',
-  'Ótimo',
-  39.90,
-  2,
-  'https://m.media-amazon.com/images/I/71jLBXtWJWL._AC_UF1000,1000_QL80_.jpg'
-),
-(
-  '1984',
-  'George Orwell',
-  '978-8535914849',
-  'Companhia das Letras',
-  2009,
-  'Distopia',
-  'Em um futuro sombrio, Winston Smith vive sob o domínio totalitário do Grande Irmão e tenta resistir ao sistema opressor.',
-  'Regular',
-  18.50,
-  5,
-  'https://m.media-amazon.com/images/I/71kxa2Wy03L._AC_UF1000,1000_QL80_.jpg'
-),
-(
-  'O Pequeno Príncipe',
-  'Antoine de Saint-Exupéry',
-  '978-8574480929',
-  'Agir',
-  2015,
-  'Infantojuvenil',
-  'Um piloto perdido no Saara conhece um menino misterioso vindo de outro planeta, e juntos exploram lições sobre a vida e os relacionamentos.',
-  'Novo',
-  22.00,
-  10,
-  'https://m.media-amazon.com/images/I/71OZY035QKL._AC_UF1000,1000_QL80_.jpg'
-),
-(
-  'Sapiens: Uma Breve História da Humanidade',
-  'Yuval Noah Harari',
-  '978-8525432186',
-  'L&PM',
-  2015,
-  'História',
-  'Uma narrativa fascinante sobre a trajetória do Homo sapiens desde a Idade da Pedra até a era moderna.',
-  'Bom',
-  34.90,
-  4,
-  'https://m.media-amazon.com/images/I/71N3lDSKZUL._AC_UF1000,1000_QL80_.jpg'
-),
-(
-  'Harry Potter e a Pedra Filosofal',
-  'J.K. Rowling',
-  '978-8532530783',
-  'Rocco',
-  2017,
-  'Fantasia',
-  'Harry Potter descobre que é um bruxo e ingressa na Escola de Magia e Bruxaria de Hogwarts, onde enfrenta seu primeiro grande desafio.',
-  'Ótimo',
-  29.90,
-  6,
-  'https://m.media-amazon.com/images/I/81YOuOGFCJL._AC_UF1000,1000_QL80_.jpg'
-),
-(
-  'A Metamorfose',
-  'Franz Kafka',
-  '978-8525406392',
-  'L&PM Pocket',
-  2011,
-  'Ficção',
-  'Gregor Samsa acorda uma manhã transformado em um enorme inseto. Uma das obras mais impactantes da literatura universal.',
-  'Com Defeito',
-  9.90,
-  1,
-  'https://m.media-amazon.com/images/I/61kqBTXSuQL._AC_UF1000,1000_QL80_.jpg'
-),
-(
-  'O Hobbit',
-  'J.R.R. Tolkien',
-  '978-8578270704',
-  'Martins Fontes',
-  2013,
-  'Fantasia',
-  'Bilbo Bolseiro, um hobbit tranquilo, é convocado para uma aventura épica em busca de um tesouro guardado pelo dragão Smaug.',
-  'Bom',
-  27.50,
-  3,
-  'https://m.media-amazon.com/images/I/710+HC-7nBL._AC_UF1000,1000_QL80_.jpg'
-);

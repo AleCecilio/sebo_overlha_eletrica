@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sebo Online — Livros Usados com História</title>
+  <title>Sebo Ovelha Elétrica — Livros Usados com História</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <meta name="description" content="Sebo Online: encontre livros usados com ótimo estado de conservação a preços acessíveis.">
 </head>
@@ -12,22 +12,23 @@
 <!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
 <nav class="navbar">
   <a class="navbar-brand" href="index.html">
-    📚 <span>Sebo</span>Online
+    <img src="assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha">
+     <span>Sebo</span> Ovelha Elétrica
   </a>
 
   <div class="navbar-search">
     <input type="text" id="search-input" placeholder="Buscar por título, autor ou ISBN..." aria-label="Buscar livros">
-    <button onclick="buscar()" aria-label="Pesquisar">🔍</button>
+    <button onclick="buscar()" aria-label="Pesquisar"></button>
   </div>
 
   <div class="navbar-actions">
-    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema">🌙</button>
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema"></button>
     <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()" title="Carrinho" aria-label="Abrir carrinho">
-      🛒 <span class="cart-badge" style="display:none">0</span>
+       <span class="cart-badge" style="display:none">0</span>
     </button>
     <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
-    <a id="btn-pedidos" href="pages/pedidos.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem">📦 Pedidos</a>
-    <a id="btn-admin" href="pages/admin.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem">⚙️ Admin</a>
+    <a id="btn-pedidos" href="pages/pedidos.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem"> Pedidos</a>
+    <a id="btn-admin" href="pages/admin.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem">️ Admin</a>
     <button class="btn btn-primary" id="btn-login" onclick="window.LoginModal.abrir()" style="height:36px;padding:0 16px">
       Entrar
     </button>
@@ -81,7 +82,7 @@
 <aside class="cart-drawer" id="cart-drawer">
   <div class="cart-header">
     <span>Meu Carrinho</span>
-    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()">✕</button>
+    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()"></button>
   </div>
   <div class="cart-items"></div>
   <div class="cart-footer">
@@ -126,7 +127,7 @@
     } catch (e) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1">
-          <div class="icon">⚠️</div>
+          <div class="icon">️</div>
           <h3>Servidor offline</h3>
           <p>Verifique se o back-end está rodando em <code>localhost:3000</code></p>
         </div>`;
@@ -138,7 +139,7 @@
     if (!livros || livros.length === 0) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1">
-          <div class="icon">📭</div>
+          <div class="icon"></div>
           <h3>Nenhum livro encontrado</h3>
           <p>Tente outros termos de busca ou remova os filtros.</p>
         </div>`;
@@ -154,11 +155,11 @@
       return `
         <article class="book-card" onclick="verDetalhes(${l.id})">
           <div class="book-cover">
-            ${l.capa_url
-              ? `<img src="${l.capa_url}" alt="${l.titulo}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            ${l.imagem_url
+              ? `<img src="${l.imagem_url}" alt="${l.titulo}" class="capa-livro" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
               : ''}
-            <div class="no-cover" ${l.capa_url ? 'style="display:none"' : ''}>
-              <span class="icon">📚</span>
+            <div class="no-cover" ${l.imagem_url ? 'style="display:none"' : ''}>
+              <span class="icon"></span>
               <span>Sem capa</span>
             </div>
             <span class="conservacao-badge ${badgeClass}">${l.conservacao}</span>

@@ -244,4 +244,4 @@ async function googleAuth(req, res) {
   }
 }
 
-module.exports = { login, enviar2FA, verificar2FA, googleAuth };
+module.exports = { login, enviar2FA, verificar2FA, googleAuth, loginGoogle: googleAuth };

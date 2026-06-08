@@ -33,7 +33,7 @@ if (process.env.NODE_ENV === 'development') {
 // ─── Rota de saúde ──────────────────────────────────────────────────────────
 app.get('/', (_req, res) => {
   res.json({
-    api:     'Sebo Online - API',
+    api:     'Sebo Ovelha Elétrica - API',
     versao:  '1.0.0',
     status:  'online',
     projeto: 'Programação II - Web | UEMG Passos',
@@ -71,7 +71,7 @@ app.use((err, _req, res, _next) => {
 // ─── Inicia o servidor ───────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log('\n╔═══════════════════════════════════════════╗');
-  console.log(`║   🏚  Sebo Online - Servidor Iniciado      ║`);
+  console.log(`║      Sebo Ovelha Elétrica - Servidor Iniciado      ║`);
   console.log(`║   🌐  http://localhost:${PORT}                ║`);
   console.log(`║   📚  Programação II - Web | UEMG Passos   ║`);
   console.log('╚═══════════════════════════════════════════╝\n');

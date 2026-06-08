@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detalhes do Livro — Sebo Online</title>
+  <title>Detalhes do Livro — Sebo Ovelha Elétrica</title>
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -11,16 +11,17 @@
 <!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
 <nav class="navbar">
   <a class="navbar-brand" href="../index.html">
-    📚 <span>Sebo</span>Online
+    <img src="../assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha">
+     <span>Sebo</span> Ovelha Elétrica
   </a>
   <div class="navbar-search">
     <input type="text" id="search-input" placeholder="Buscar livros..." aria-label="Buscar">
-    <button onclick="window.location.href='../index.html?q='+document.getElementById('search-input').value">🔍</button>
+    <button onclick="window.location.href='../index.html?q='+document.getElementById('search-input').value"></button>
   </div>
   <div class="navbar-actions">
-    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema">🌙</button>
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema"></button>
     <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()" title="Carrinho">
-      🛒 <span class="cart-badge" style="display:none">0</span>
+       <span class="cart-badge" style="display:none">0</span>
     </button>
     <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
     <button class="btn btn-primary" id="btn-login" onclick="window.LoginModal.abrir()" style="height:36px;padding:0 16px">Entrar</button>
@@ -44,7 +45,7 @@
 <aside class="cart-drawer" id="cart-drawer">
   <div class="cart-header">
     <span>Meu Carrinho</span>
-    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()">✕</button>
+    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()"></button>
   </div>
   <div class="cart-items"></div>
   <div class="cart-footer">
@@ -69,7 +70,7 @@
   async function carregarDetalhes() {
     const container = document.getElementById('detalhe-container');
     if (!livroId) {
-      container.innerHTML = `<div class="empty-state"><div class="icon">❓</div><h3>Livro não especificado.</h3><a class="btn btn-primary" href="../index.html">Voltar</a></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="icon"></div><h3>Livro não especificado.</h3><a class="btn btn-primary" href="../index.html">Voltar</a></div>`;
       return;
     }
 
@@ -85,23 +86,24 @@
       }[l.conservacao] || 'bom';
 
       const metaItems = [
-        l.genero      ? `<span class="meta-chip">📂 ${l.genero}</span>` : '',
-        l.ano_publicacao ? `<span class="meta-chip">📅 ${l.ano_publicacao}</span>` : '',
-        l.editora     ? `<span class="meta-chip">🏢 ${l.editora}</span>` : '',
-        l.isbn        ? `<span class="meta-chip">🔖 ISBN ${l.isbn}</span>` : '',
+        l.genero      ? `<span class="meta-chip"> ${l.genero}</span>` : '',
+        l.ano_publicacao ? `<span class="meta-chip"> ${l.ano_publicacao}</span>` : '',
+        l.editora     ? `<span class="meta-chip"> ${l.editora}</span>` : '',
+        l.isbn        ? `<span class="meta-chip"> ISBN ${l.isbn}</span>` : '',
       ].filter(Boolean).join('');
 
       container.innerHTML = `
         <div class="detail-page">
           <div>
             <div class="detail-cover">
-              ${l.capa_url
-                ? `<img src="${l.capa_url}" alt="${l.titulo}">`
-                : `<div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:4rem">📚</div>`}
+              <img class="capa-livro"
+              ${l.imagem_url
+                ? `<img src="${l.imagem_url}" alt="${l.titulo}">`
+                : `<div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:4rem"></div>`}
             </div>
             <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn btn-primary" style="flex:1" onclick="addCarrinho()">
-                🛒 Adicionar ao Carrinho
+                 Adicionar ao Carrinho
               </button>
             </div>
           </div>
@@ -121,8 +123,8 @@
             <div class="detail-price">R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</div>
             <div class="detail-estoque">
               ${l.estoque > 0
-                ? `<span style="color:var(--success)">✓</span> ${l.estoque} exemplar(es) disponível(is)`
-                : `<span style="color:var(--primary)">✕ Esgotado</span>`}
+                ? `<span style="color:var(--success)"></span> ${l.estoque} exemplar(es) disponível(is)`
+                : `<span style="color:var(--primary)"> Esgotado</span>`}
             </div>
 
             ${l.sinopse ? `
@@ -132,7 +134,7 @@
 
             <div class="detail-actions">
               <button class="btn btn-primary" onclick="addCarrinho()" ${l.estoque === 0 ? 'disabled' : ''}>
-                🛒 Adicionar ao Carrinho
+                 Adicionar ao Carrinho
               </button>
               <button class="btn btn-outline" onclick="window.history.back()">
                 ← Voltar
@@ -147,7 +149,7 @@
     } catch (e) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="icon">😕</div>
+          <div class="icon"></div>
           <h3>Livro não encontrado</h3>
           <p>${e.mensagem || 'Verifique se o servidor está online.'}</p>
           <br><a class="btn btn-primary" href="../index.html">Voltar ao catálogo</a>

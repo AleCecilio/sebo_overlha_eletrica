@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Admin — Sebo Online</title>
+  <title>Painel Admin — Sebo Ovelha Elétrica</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <style>
     .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 56px); }
@@ -56,7 +56,8 @@
 </head>
 <body>
 <nav class="navbar">
-  <a class="navbar-brand" href="../index.html">📚 <span>Sebo</span>Online</a>
+  <a class="navbar-brand" href="../index.html">
+    <img src="../assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha"> <span>Sebo</span> Ovelha Elétrica</a>
   <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
     <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
     <span style="font-size:.75rem;background:var(--primary);color:#fff;padding:3px 10px;border-radius:20px;font-weight:700">ADMIN</span>
@@ -67,9 +68,9 @@
 <div class="admin-layout">
   <aside class="admin-sidebar">
     <div class="sidebar-title">Painel Admin</div>
-    <div class="sidebar-link active" onclick="mostrarSecao('livros')">📚 Gerenciar Livros</div>
-    <div class="sidebar-link" onclick="mostrarSecao('cadastrar')">➕ Cadastrar Livro</div>
-    <div class="sidebar-link" onclick="window.location='../index.html'">🏚 Ver Vitrine</div>
+    <div class="sidebar-link active" onclick="mostrarSecao('livros')"> Gerenciar Livros</div>
+    <div class="sidebar-link" onclick="mostrarSecao('cadastrar')"> Cadastrar Livro</div>
+    <div class="sidebar-link" onclick="window.location='../index.html'"> Ver Vitrine</div>
   </aside>
 
   <main class="admin-content">
@@ -171,8 +172,8 @@
           <td>R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</td>
           <td>${l.estoque}</td>
           <td style="display:flex;gap:6px">
-            <button class="btn btn-outline btn-sm" onclick="editarLivro(${l.id})">✏️ Editar</button>
-            <button class="btn btn-sm" style="background:var(--primary);color:#fff" onclick="deletarLivro(${l.id},'${l.titulo.replace(/'/g,"\\'")}')">🗑 Remover</button>
+            <button class="btn btn-outline btn-sm" onclick="editarLivro(${l.id})">️ Editar</button>
+            <button class="btn btn-sm" style="background:var(--primary);color:#fff" onclick="deletarLivro(${l.id},'${l.titulo.replace(/'/g,"\\'")}')"> Remover</button>
           </td>
         </tr>`).join('');
     } catch (e) {

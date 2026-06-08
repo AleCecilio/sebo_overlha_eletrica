@@ -52,7 +52,7 @@ function toast(msg, tipo = '', duracao = 3500) {
   }
   const el = document.createElement('div');
   el.className = `toast ${tipo}`;
-  const icone = tipo === 'success' ? '✓' : tipo === 'error' ? '✕' : 'ℹ';
+  const icone = tipo === 'success' ? '' : tipo === 'error' ? '' : 'ℹ';
   el.innerHTML = `<span>${icone}</span> ${msg}`;
   container.appendChild(el);
   setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, duracao);
@@ -103,16 +103,16 @@ function renderizarCarrinho() {
   if (state.carrinho.length === 0) {
     lista.innerHTML = `
       <div class="empty-state">
-        <div class="icon">🛒</div>
+        <div class="icon"></div>
         <h3>Carrinho vazio</h3>
         <p>Adicione livros ao carrinho para continuar.</p>
       </div>`;
   } else {
     lista.innerHTML = state.carrinho.map(item => `
       <div class="cart-item">
-        ${item.capa_url
-          ? `<img src="${item.capa_url}" alt="${item.titulo}">`
-          : `<div style="width:56px;height:80px;background:var(--surface);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.5rem">📚</div>`}
+        ${item.imagem_url
+          ? `<img src="${item.imagem_url}" alt="${item.titulo}">`
+          : `<div style="width:56px;height:80px;background:var(--surface);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:1.5rem"></div>`}
         <div class="cart-item-info">
           <div class="cart-item-title">${item.titulo}</div>
           <div style="font-size:.8rem;color:var(--text-secondary);margin-bottom:4px">${item.autor}</div>
@@ -120,7 +120,7 @@ function renderizarCarrinho() {
             <span style="font-weight:400;font-size:.8rem;color:var(--text-secondary)"> (${item.quantidade}x)</span>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="removerDoCarrinho(${item.id})" title="Remover">✕</button>
+        <button class="cart-item-remove" onclick="removerDoCarrinho(${item.id})" title="Remover"></button>
       </div>
     `).join('');
   }

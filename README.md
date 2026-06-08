@@ -1,4 +1,4 @@
-# 📚 Sebo Online — E-commerce de Livros Usados
+# Sebo Ovelha Eletrica — E-commerce de Livros Usados
 
 <div align="center">
 
@@ -11,6 +11,8 @@
 | Autor | GitHub |
 |---|---|
 | Alessandro Moreira Cecilio | [@AleCecilio](https://github.com/AleCecilio) |
+| João Paulo Borges | — |
+| João Victor Dizaró | — |
 
 </div>
 
@@ -18,7 +20,7 @@
 
 ## 📌 Sobre o Projeto
 
-O **Sebo Online** é um e-commerce completo de livros usados, desenvolvido como projeto avaliativo da disciplina de Programação II - Web. A aplicação segue uma arquitetura cliente-servidor com separação estrita de responsabilidades:
+O **Sebo Ovelha Eletrica** e um e-commerce completo de livros usados, desenvolvido como projeto avaliativo da disciplina de Programação II - Web. A aplicação segue uma arquitetura cliente-servidor com separação estrita de responsabilidades:
 
 - **Front-end**: HTML5, CSS3 e JavaScript Vanilla consumindo a API via `fetch()`
 - **Back-end**: Node.js + Express expondo uma API RESTful 100% JSON
@@ -331,7 +333,7 @@ Exemplo: `GET /listar?busca=tolkien&pagina=1&limite=12`
       "conservacao": "Ótimo",
       "preco": "39.90",
       "estoque": 2,
-      "capa_url": "https://...",
+      "imagem_url": "https://...",
       "ano_publicacao": 2019
     }
   ]
@@ -358,7 +360,7 @@ Exemplo: `GET /buscar/2`
     "conservacao": "Ótimo",
     "preco": "39.90",
     "estoque": 2,
-    "capa_url": "https://..."
+    "imagem_url": "https://..."
   }
 }
 ```
@@ -386,7 +388,7 @@ Exemplo: `GET /buscar/2`
   "conservacao": "Ótimo",
   "preco": 24.90,
   "estoque": 3,
-  "capa_url": "https://..."
+  "imagem_url": "https://..."
 }
 ```
 **Resposta (201):**
