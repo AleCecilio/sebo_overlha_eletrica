@@ -147,7 +147,7 @@ INSERT INTO usuarios (nome, email, cpf, telefone, senha_hash, perfil) VALUES
   'alessandro@email.com',
   '987.654.321-00',
   '(35) 99111-2222',
-  '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- Admin@123
+  '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- ale123
   'CLIENTE'
 ),
 (

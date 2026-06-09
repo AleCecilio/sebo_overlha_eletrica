@@ -15,7 +15,7 @@
     overlay.id = 'modal-login-overlay';
     overlay.innerHTML = `
       <div class="modal" id="modal-login">
-        <button class="modal-close" onclick="window.LoginModal.fechar()"></button>
+        <button class="modal-close" onclick="window.LoginModal.fechar()"><i class="fa fa-xmark"></i></button>
         <div class="modal-title">Entrar</div>
         <p class="modal-subtitle">Use seu e-mail, CPF ou telefone</p>
 
@@ -37,7 +37,7 @@
         <div style="text-align:center;color:var(--text-muted);font-size:.85rem;margin-bottom:12px">— ou —</div>
 
         <button id="btn-google-auth" class="btn-social" onclick="window.LoginModal.google()">
-          <span></span> Entrar com Google (simulado)
+          <i class="fab fa-google"></i> Entrar com Google (simulado)
         </button>
       </div>`;
     document.body.appendChild(overlay);
@@ -93,18 +93,18 @@
     overlay.id = 'modal-2fa-canal-overlay';
     overlay.innerHTML = `
       <div class="modal">
-        <button class="modal-close" onclick="document.getElementById('modal-2fa-canal-overlay').remove()"></button>
+        <button class="modal-close" onclick="document.getElementById('modal-2fa-canal-overlay').remove()"><i class="fa fa-xmark"></i></button>
         <div class="modal-title">Verificação em 2 Etapas</div>
         <p class="modal-subtitle">Olá, <strong>${_usuarioTemp.nome}</strong>! Escolha como receber seu código:</p>
 
         <div class="canal-options">
           <button class="canal-btn" id="canal-email" onclick="window.LoginModal.selecionarCanal('EMAIL')">
-            <span class="canal-icon"></span>
+            <span class="canal-icon"><i class="fa fa-envelope"></i></span>
             <span>E-mail</span>
             ${_usuarioTemp.email ? `<span style="font-size:.7rem;color:var(--text-muted)">${_usuarioTemp.email.substring(0,3)}***</span>` : ''}
           </button>
           <button class="canal-btn" id="canal-sms" onclick="window.LoginModal.selecionarCanal('SMS')">
-            <span class="canal-icon"></span>
+            <span class="canal-icon"><i class="fa fa-mobile-screen"></i></span>
             <span>SMS</span>
             ${_usuarioTemp.telefone ? `<span style="font-size:.7rem;color:var(--text-muted)">***${_usuarioTemp.telefone.slice(-4)}</span>` : ''}
           </button>
@@ -151,11 +151,11 @@
     overlay.id = 'modal-2fa-codigo-overlay';
     overlay.innerHTML = `
       <div class="modal">
-        <button class="modal-close" onclick="document.getElementById('modal-2fa-codigo-overlay').remove()"></button>
+        <button class="modal-close" onclick="document.getElementById('modal-2fa-codigo-overlay').remove()"><i class="fa fa-xmark"></i></button>
         <div class="modal-title">Código de Verificação</div>
         <p class="modal-subtitle">
           Insira o código de 6 dígitos enviado via <strong>${_canalSelecionado === 'EMAIL' ? 'E-mail' : 'SMS'}</strong>.
-          <br><span style="color:var(--primary);font-size:.8rem"> Confira o terminal do servidor para o código (ambiente de dev)</span>
+          <br><span style="color:var(--primary);font-size:.8rem"><i class="fa fa-terminal"></i> Confira o terminal do servidor para o código (ambiente de dev)</span>
         </p>
 
         <div class="codigo-2fa-input" id="inputs-2fa">
@@ -211,7 +211,7 @@
       salvarAuth(data.token, data.usuario);
       document.getElementById('modal-2fa-codigo-overlay').remove();
       atualizarUIAuth();
-      toast(`Bem-vindo(a), ${data.usuario.nome.split(' ')[0]}! `, 'success');
+      toast(`Bem-vindo(a), ${data.usuario.nome.split(' ')[0]}!`, 'success');
     } catch (e) {
       toast(e.mensagem || 'Código inválido.', 'error');
       inputs.forEach(i => i.value = '');

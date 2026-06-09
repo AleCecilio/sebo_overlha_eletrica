@@ -4,55 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel Admin — Sebo Ovelha Elétrica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../assets/css/style.css">
-  <style>
-    .admin-layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 56px); }
-    .admin-sidebar {
-      background: var(--bg-secondary);
-      border-right: 1px solid var(--border);
-      padding: 24px 0;
-    }
-    .sidebar-title {
-      font-family: var(--font-display);
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 0 20px 16px;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-    }
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 20px;
-      color: var(--text-secondary);
-      font-size: .9rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-    .sidebar-link:hover, .sidebar-link.active {
-      background: var(--surface);
-      color: var(--primary);
-    }
-    .admin-content { padding: 32px; }
-    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
-    th {
-      text-align: left;
-      padding: 10px 12px;
-      background: var(--surface);
-      font-weight: 700;
-      color: var(--text-secondary);
-      font-size: .8rem;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-    }
-    td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
-    tr:hover td { background: var(--bg-secondary); }
-    .btn-sm { height: 30px; padding: 0 12px; font-size: .8rem; border-radius: 4px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  </style>
 </head>
 <body>
 <nav class="navbar">
@@ -60,17 +13,17 @@
     <img src="../assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha"> <span>Sebo</span> Ovelha Elétrica</a>
   <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
     <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
-    <span style="font-size:.75rem;background:var(--primary);color:#fff;padding:3px 10px;border-radius:20px;font-weight:700">ADMIN</span>
-    <button class="btn btn-outline" onclick="window.SeBoApp.logout();window.location='../index.html'" style="height:36px;padding:0 16px">Sair</button>
+    <span style="font-size:.7rem;background:var(--gradient-primary);color:#fff;padding:3px 10px;border-radius:var(--radius-full);font-weight:700;letter-spacing:.06em"><i class="fa fa-shield-halved"></i> ADMIN</span>
+    <button class="btn btn-outline" onclick="window.SeBoApp.logout();window.location='../index.html'" style="height:36px;padding:0 16px"><i class="fa fa-right-from-bracket"></i> Sair</button>
   </div>
 </nav>
 
 <div class="admin-layout">
   <aside class="admin-sidebar">
     <div class="sidebar-title">Painel Admin</div>
-    <div class="sidebar-link active" onclick="mostrarSecao('livros')"> Gerenciar Livros</div>
-    <div class="sidebar-link" onclick="mostrarSecao('cadastrar')"> Cadastrar Livro</div>
-    <div class="sidebar-link" onclick="window.location='../index.html'"> Ver Vitrine</div>
+    <div class="sidebar-link active" onclick="mostrarSecao('livros')"><i class="fa fa-books"></i> Gerenciar Livros</div>
+    <div class="sidebar-link" onclick="mostrarSecao('cadastrar')"><i class="fa fa-plus-circle"></i> Cadastrar Livro</div>
+    <div class="sidebar-link" onclick="window.location='../index.html'"><i class="fa fa-store"></i> Ver Vitrine</div>
   </aside>
 
   <main class="admin-content">
@@ -78,7 +31,7 @@
     <section id="secao-livros">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
         <h2 style="font-family:var(--font-display);font-size:1.6rem">Gerenciar Livros</h2>
-        <button class="btn btn-primary btn-sm" onclick="mostrarSecao('cadastrar')">+ Novo Livro</button>
+        <button class="btn btn-primary btn-sm" onclick="mostrarSecao('cadastrar')"><i class="fa fa-plus"></i> Novo Livro</button>
       </div>
       <div style="overflow-x:auto">
         <table>
@@ -89,7 +42,7 @@
             </tr>
           </thead>
           <tbody id="tabela-livros">
-            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">Carregando...</td></tr>
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)"><i class="fa fa-spinner fa-spin"></i> Carregando...</td></tr>
           </tbody>
         </table>
       </div>
@@ -121,12 +74,12 @@
         <div class="form-group" style="grid-column:1/-1"><label>URL da Capa</label><input type="url" id="f-capa" placeholder="https://..."></div>
         <div class="form-group" style="grid-column:1/-1">
           <label>Sinopse</label>
-          <textarea id="f-sinopse" rows="4" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg-secondary);color:var(--text);font-family:var(--font-body);resize:vertical"></textarea>
+          <textarea id="f-sinopse" rows="4" style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-secondary);color:var(--text);font-family:var(--font-body);resize:vertical;transition:border-color var(--transition);outline:none" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
         </div>
       </div>
       <div style="display:flex;gap:12px;margin-top:8px">
-        <button class="btn btn-primary" onclick="salvarLivro()" id="btn-salvar">Salvar Livro</button>
-        <button class="btn btn-outline" onclick="resetarForm()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarLivro()" id="btn-salvar"><i class="fa fa-floppy-disk"></i> Salvar Livro</button>
+        <button class="btn btn-outline" onclick="resetarForm()"><i class="fa fa-xmark"></i> Cancelar</button>
       </div>
     </section>
   </main>
@@ -134,7 +87,6 @@
 
 <script src="../assets/js/app.js"></script>
 <script>
-  // Redireciona se não for admin
   document.addEventListener('DOMContentLoaded', () => {
     const u = window.SeBoApp.state.usuario;
     if (!u || u.perfil !== 'ADMIN') {
@@ -148,8 +100,8 @@
   });
 
   function mostrarSecao(id) {
-    document.getElementById('secao-livros').style.display    = id === 'livros'     ? 'block' : 'none';
-    document.getElementById('secao-cadastrar').style.display = id === 'cadastrar'  ? 'block' : 'none';
+    document.getElementById('secao-livros').style.display    = id === 'livros'    ? 'block' : 'none';
+    document.getElementById('secao-cadastrar').style.display = id === 'cadastrar' ? 'block' : 'none';
     document.querySelectorAll('.sidebar-link').forEach((el,i) => {
       el.classList.toggle('active', (i === 0 && id === 'livros') || (i === 1 && id === 'cadastrar'));
     });
@@ -165,19 +117,19 @@
       }
       tbody.innerHTML = data.livros.map(l => `
         <tr>
-          <td>#${l.id}</td>
+          <td style="color:var(--text-muted);font-size:.8rem">#${l.id}</td>
           <td><strong>${l.titulo}</strong></td>
           <td>${l.autor}</td>
-          <td><span class="conservacao-badge ${getBadgeClass(l.conservacao)}" style="position:static;font-size:.75rem">${l.conservacao}</span></td>
-          <td>R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</td>
+          <td><span class="conservacao-badge ${getBadgeClass(l.conservacao)}" style="position:static;font-size:.72rem">${l.conservacao}</span></td>
+          <td style="font-weight:600">R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</td>
           <td>${l.estoque}</td>
           <td style="display:flex;gap:6px">
-            <button class="btn btn-outline btn-sm" onclick="editarLivro(${l.id})">️ Editar</button>
-            <button class="btn btn-sm" style="background:var(--primary);color:#fff" onclick="deletarLivro(${l.id},'${l.titulo.replace(/'/g,"\\'")}')"> Remover</button>
+            <button class="btn btn-outline btn-sm" onclick="editarLivro(${l.id})"><i class="fa fa-pen"></i> Editar</button>
+            <button class="btn btn-sm" style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(220,38,38,.2)" onclick="deletarLivro(${l.id},'${l.titulo.replace(/'/g,"\\'")}')"><i class="fa fa-trash"></i> Remover</button>
           </td>
         </tr>`).join('');
     } catch (e) {
-      tbody.innerHTML = `<tr><td colspan="7" style="color:var(--primary);padding:20px">${e.mensagem || 'Erro ao carregar livros.'}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="color:var(--danger);padding:20px">${e.mensagem || 'Erro ao carregar livros.'}</td></tr>`;
     }
   }
 
@@ -246,7 +198,7 @@
     } catch (e) {
       window.SeBoApp.toast(e.mensagem || 'Erro ao salvar.', 'error');
     } finally {
-      btn.innerHTML = 'Salvar Livro';
+      btn.innerHTML = '<i class="fa fa-floppy-disk"></i> Salvar Livro';
       btn.disabled = false;
     }
   }

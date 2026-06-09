@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Detalhes do Livro — Sebo Ovelha Elétrica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -16,28 +17,29 @@
   </a>
   <div class="navbar-search">
     <input type="text" id="search-input" placeholder="Buscar livros..." aria-label="Buscar">
-    <button onclick="window.location.href='../index.html?q='+document.getElementById('search-input').value"></button>
+    <button onclick="window.location.href='../index.html?q='+document.getElementById('search-input').value"><i class="fa fa-search"></i></button>
   </div>
   <div class="navbar-actions">
-    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema"></button>
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema"><i class="fa fa-circle-half-stroke"></i></button>
     <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()" title="Carrinho">
-       <span class="cart-badge" style="display:none">0</span>
+      <i class="fa fa-bag-shopping"></i>
+      <span class="cart-badge" style="display:none">0</span>
     </button>
     <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
-    <button class="btn btn-primary" id="btn-login" onclick="window.LoginModal.abrir()" style="height:36px;padding:0 16px">Entrar</button>
-    <button class="btn btn-outline" id="btn-logout" onclick="window.SeBoApp.logout()" style="display:none;height:36px;padding:0 16px">Sair</button>
+    <button class="btn btn-primary" id="btn-login" onclick="window.LoginModal.abrir()" style="height:36px;padding:0 16px"><i class="fa fa-right-to-bracket"></i> Entrar</button>
+    <button class="btn btn-outline" id="btn-logout" onclick="window.SeBoApp.logout()" style="display:none;height:36px;padding:0 16px"><i class="fa fa-right-from-bracket"></i> Sair</button>
   </div>
 </nav>
 
 <!-- ── Breadcrumb ──────────────────────────────────────────────────────────── -->
-<div style="background:var(--bg-secondary);border-bottom:1px solid var(--border);padding:10px 24px;font-size:.85rem;color:var(--text-secondary)">
-  <a href="../index.html" style="color:var(--primary)">← Voltar ao catálogo</a>
+<div class="breadcrumb-bar">
+  <a href="../index.html"><i class="fa fa-arrow-left"></i> Voltar ao catálogo</a>
 </div>
 
 <!-- ── Conteúdo ────────────────────────────────────────────────────────────── -->
 <main class="container">
   <div id="detalhe-container">
-    <div style="text-align:center;padding:80px;color:var(--text-muted)">Carregando...</div>
+    <div style="text-align:center;padding:80px;color:var(--text-muted)"><i class="fa fa-spinner fa-spin" style="font-size:2rem;margin-bottom:16px;display:block"></i>Carregando...</div>
   </div>
 </main>
 
@@ -45,7 +47,7 @@
 <aside class="cart-drawer" id="cart-drawer">
   <div class="cart-header">
     <span>Meu Carrinho</span>
-    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()"></button>
+    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()"><i class="fa fa-xmark"></i></button>
   </div>
   <div class="cart-items"></div>
   <div class="cart-footer">
@@ -54,7 +56,7 @@
       <span>R$ 0,00</span>
     </div>
     <button class="btn btn-success" style="width:100%" onclick="window.Checkout.abrir()">
-      Finalizar Compra
+      <i class="fa fa-lock"></i> Finalizar Compra
     </button>
   </div>
 </aside>
@@ -70,7 +72,7 @@
   async function carregarDetalhes() {
     const container = document.getElementById('detalhe-container');
     if (!livroId) {
-      container.innerHTML = `<div class="empty-state"><div class="icon"></div><h3>Livro não especificado.</h3><a class="btn btn-primary" href="../index.html">Voltar</a></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="icon"><i class="fa fa-question-circle"></i></div><h3>Livro não especificado.</h3><a class="btn btn-primary" href="../index.html">Voltar</a></div>`;
       return;
     }
 
@@ -86,24 +88,23 @@
       }[l.conservacao] || 'bom';
 
       const metaItems = [
-        l.genero      ? `<span class="meta-chip"> ${l.genero}</span>` : '',
-        l.ano_publicacao ? `<span class="meta-chip"> ${l.ano_publicacao}</span>` : '',
-        l.editora     ? `<span class="meta-chip"> ${l.editora}</span>` : '',
-        l.isbn        ? `<span class="meta-chip"> ISBN ${l.isbn}</span>` : '',
+        l.genero       ? `<span class="meta-chip"><i class="fa fa-tag"></i> ${l.genero}</span>` : '',
+        l.ano_publicacao ? `<span class="meta-chip"><i class="fa fa-calendar"></i> ${l.ano_publicacao}</span>` : '',
+        l.editora      ? `<span class="meta-chip"><i class="fa fa-building"></i> ${l.editora}</span>` : '',
+        l.isbn         ? `<span class="meta-chip"><i class="fa fa-barcode"></i> ISBN ${l.isbn}</span>` : '',
       ].filter(Boolean).join('');
 
       container.innerHTML = `
         <div class="detail-page">
           <div>
             <div class="detail-cover">
-              <img class="capa-livro"
               ${l.imagem_url
-                ? `<img src="${l.imagem_url}" alt="${l.titulo}">`
-                : `<div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:4rem"></div>`}
+                ? `<img src="${l.imagem_url}" alt="${l.titulo}" class="capa-livro">`
+                : `<div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:4rem;color:var(--text-muted)"><i class="fa fa-book"></i></div>`}
             </div>
             <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
               <button class="btn btn-primary" style="flex:1" onclick="addCarrinho()">
-                 Adicionar ao Carrinho
+                <i class="fa fa-plus"></i> Adicionar ao Carrinho
               </button>
             </div>
           </div>
@@ -114,7 +115,7 @@
             <div class="detail-author">por <strong>${l.autor}</strong></div>
 
             <div class="detail-meta">
-              <span class="conservacao-badge ${badgeClass}" style="position:static;font-size:.8rem">
+              <span class="conservacao-badge ${badgeClass}" style="position:static;font-size:.78rem">
                 ${l.conservacao}
               </span>
               ${metaItems}
@@ -123,33 +124,32 @@
             <div class="detail-price">R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</div>
             <div class="detail-estoque">
               ${l.estoque > 0
-                ? `<span style="color:var(--success)"></span> ${l.estoque} exemplar(es) disponível(is)`
-                : `<span style="color:var(--primary)"> Esgotado</span>`}
+                ? `<i class="fa fa-circle-check" style="color:var(--success)"></i> ${l.estoque} exemplar(es) disponível(is)`
+                : `<i class="fa fa-circle-xmark" style="color:var(--danger)"></i> Esgotado`}
             </div>
 
             ${l.sinopse ? `
-              <div style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:10px">Sinopse</div>
+              <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:10px">Sinopse</div>
               <p class="detail-sinopse">${l.sinopse}</p>
             ` : ''}
 
             <div class="detail-actions">
               <button class="btn btn-primary" onclick="addCarrinho()" ${l.estoque === 0 ? 'disabled' : ''}>
-                 Adicionar ao Carrinho
+                <i class="fa fa-cart-plus"></i> Adicionar ao Carrinho
               </button>
               <button class="btn btn-outline" onclick="window.history.back()">
-                ← Voltar
+                <i class="fa fa-arrow-left"></i> Voltar
               </button>
             </div>
           </div>
         </div>`;
 
-      // Guarda o livro para o botão
       window._livroAtual = l;
 
     } catch (e) {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="icon"></div>
+          <div class="icon"><i class="fa fa-triangle-exclamation"></i></div>
           <h3>Livro não encontrado</h3>
           <p>${e.mensagem || 'Verifique se o servidor está online.'}</p>
           <br><a class="btn btn-primary" href="../index.html">Voltar ao catálogo</a>
@@ -164,7 +164,6 @@
     }
   }
 
-  // Inicialização
   window.SeBoApp.atualizarBadgeCarrinho();
   window.SeBoApp.atualizarUIAuth();
   carregarDetalhes();

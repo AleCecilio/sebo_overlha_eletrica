@@ -120,7 +120,7 @@ function renderizarCarrinho() {
             <span style="font-weight:400;font-size:.8rem;color:var(--text-secondary)"> (${item.quantidade}x)</span>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="removerDoCarrinho(${item.id})" title="Remover"></button>
+        <button class="cart-item-remove" onclick="removerDoCarrinho(${item.id})" title="Remover"><i class="fa fa-xmark"></i></button>
       </div>
     `).join('');
   }

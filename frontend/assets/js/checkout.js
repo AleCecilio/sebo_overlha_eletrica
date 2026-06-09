@@ -73,10 +73,10 @@
 
           <div class="payment-options">
             <button class="payment-btn" id="pay-pix" onclick="window.Checkout.selecionarPagamento('PIX')">
-              <span class="payment-icon">PIX</span> PIX
+              <span class="payment-icon"><i class="fa fa-qrcode"></i></span> PIX
             </button>
             <button class="payment-btn" id="pay-cartao" onclick="window.Checkout.selecionarPagamento('CARTAO')">
-              <span class="payment-icon">Cartao</span> Cartao
+              <span class="payment-icon"><i class="fa fa-credit-card"></i></span> Cartão
             </button>
           </div>
 
@@ -191,7 +191,7 @@
     overlay.className = 'modal-overlay';
     overlay.innerHTML = `
       <div class="modal" style="text-align:center;max-width:400px">
-        <div class="checkout-success-icon" style="margin:0 auto 16px">V</div>
+        <div class="checkout-success-icon" style="margin:0 auto 16px"><i class="fa fa-check"></i></div>
         <div class="modal-title">Pedido Confirmado!</div>
         <p style="color:var(--text-secondary);margin:12px 0 20px">
           Pedido <strong>#${data.pedido_id}</strong> processado com sucesso.<br>

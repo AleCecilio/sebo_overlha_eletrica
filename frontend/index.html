@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sebo Ovelha Elétrica — Livros Usados com História</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <meta name="description" content="Sebo Online: encontre livros usados com ótimo estado de conservação a preços acessíveis.">
 </head>
@@ -18,22 +19,23 @@
 
   <div class="navbar-search">
     <input type="text" id="search-input" placeholder="Buscar por título, autor ou ISBN..." aria-label="Buscar livros">
-    <button onclick="buscar()" aria-label="Pesquisar"></button>
+    <button onclick="buscar()" aria-label="Pesquisar"><i class="fa fa-search"></i></button>
   </div>
 
   <div class="navbar-actions">
-    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema"></button>
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema"><i class="fa fa-circle-half-stroke"></i></button>
     <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()" title="Carrinho" aria-label="Abrir carrinho">
-       <span class="cart-badge" style="display:none">0</span>
+      <i class="fa fa-bag-shopping"></i>
+      <span class="cart-badge" style="display:none">0</span>
     </button>
     <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
-    <a id="btn-pedidos" href="pages/pedidos.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem"> Pedidos</a>
-    <a id="btn-admin" href="pages/admin.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem">️ Admin</a>
+    <a id="btn-pedidos" href="pages/pedidos.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem"><i class="fa fa-box-open"></i> Pedidos</a>
+    <a id="btn-admin" href="pages/admin.html" class="btn btn-outline" style="display:none;height:36px;padding:0 14px;font-size:.85rem"><i class="fa fa-sliders"></i> Admin</a>
     <button class="btn btn-primary" id="btn-login" onclick="window.LoginModal.abrir()" style="height:36px;padding:0 16px">
-      Entrar
+      <i class="fa fa-right-to-bracket"></i> Entrar
     </button>
     <button class="btn btn-outline" id="btn-logout" onclick="window.SeBoApp.logout()" style="display:none;height:36px;padding:0 16px">
-      Sair
+      <i class="fa fa-right-from-bracket"></i> Sair
     </button>
   </div>
 </nav>
@@ -82,7 +84,7 @@
 <aside class="cart-drawer" id="cart-drawer">
   <div class="cart-header">
     <span>Meu Carrinho</span>
-    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()"></button>
+    <button class="btn-icon" onclick="window.SeBoApp.fecharCarrinho()"><i class="fa fa-xmark"></i></button>
   </div>
   <div class="cart-items"></div>
   <div class="cart-footer">
@@ -91,7 +93,7 @@
       <span>R$ 0,00</span>
     </div>
     <button class="btn btn-success" style="width:100%" onclick="window.Checkout.abrir()">
-      Finalizar Compra
+      <i class="fa fa-lock"></i> Finalizar Compra
     </button>
   </div>
 </aside>
@@ -118,7 +120,7 @@
     if (conservacao) params.set('conservacao', conservacao);
 
     const grid = document.getElementById('books-grid');
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted)">Carregando...</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text-muted)"><i class="fa fa-spinner fa-spin" style="font-size:1.5rem;margin-bottom:12px;display:block"></i>Carregando...</div>';
 
     try {
       const data = await window.SeBoApp.apiFetch(`/listar?${params}`);
@@ -127,7 +129,7 @@
     } catch (e) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1">
-          <div class="icon">️</div>
+          <div class="icon"><i class="fa fa-plug-circle-xmark"></i></div>
           <h3>Servidor offline</h3>
           <p>Verifique se o back-end está rodando em <code>localhost:3000</code></p>
         </div>`;
@@ -139,7 +141,7 @@
     if (!livros || livros.length === 0) {
       grid.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1">
-          <div class="icon"></div>
+          <div class="icon"><i class="fa fa-book-open"></i></div>
           <h3>Nenhum livro encontrado</h3>
           <p>Tente outros termos de busca ou remova os filtros.</p>
         </div>`;
@@ -159,7 +161,7 @@
               ? `<img src="${l.imagem_url}" alt="${l.titulo}" class="capa-livro" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
               : ''}
             <div class="no-cover" ${l.imagem_url ? 'style="display:none"' : ''}>
-              <span class="icon"></span>
+              <span class="icon"><i class="fa fa-book"></i></span>
               <span>Sem capa</span>
             </div>
             <span class="conservacao-badge ${badgeClass}">${l.conservacao}</span>
@@ -169,7 +171,7 @@
             <div class="book-author">${l.autor}</div>
             <div class="book-price">R$ ${parseFloat(l.preco).toFixed(2).replace('.',',')}</div>
             <button class="btn-add-cart" onclick="event.stopPropagation(); adicionarCarrinho(${l.id}, '${encodeURIComponent(JSON.stringify(l))}')">
-              + Adicionar
+              <i class="fa fa-plus"></i> Adicionar
             </button>
           </div>
         </article>`;
@@ -181,11 +183,11 @@
     if (totalPaginas <= 1) { container.innerHTML = ''; return; }
 
     let html = '';
-    if (paginaAtualNum > 1) html += `<button onclick="carregarLivros(${paginaAtualNum - 1})">‹</button>`;
+    if (paginaAtualNum > 1) html += `<button onclick="carregarLivros(${paginaAtualNum - 1})"><i class="fa fa-chevron-left"></i></button>`;
     for (let i = 1; i <= totalPaginas; i++) {
       html += `<button onclick="carregarLivros(${i})" class="${i === paginaAtualNum ? 'active' : ''}">${i}</button>`;
     }
-    if (paginaAtualNum < totalPaginas) html += `<button onclick="carregarLivros(${paginaAtualNum + 1})">›</button>`;
+    if (paginaAtualNum < totalPaginas) html += `<button onclick="carregarLivros(${paginaAtualNum + 1})"><i class="fa fa-chevron-right"></i></button>`;
     container.innerHTML = html;
   }
 
