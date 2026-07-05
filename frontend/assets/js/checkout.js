@@ -80,9 +80,12 @@
             </button>
           </div>
 
-          <button class="btn btn-success" style="width:100%" id="btn-comprar"
+          <p id="pagamento-hint" style="font-size:.82rem;color:var(--text-secondary);margin-bottom:10px">
+            Escolha uma forma de pagamento para continuar.
+          </p>
+          <button class="btn btn-success" style="width:100%;display:none" id="btn-comprar"
             onclick="event.preventDefault(); window.Checkout.finalizar()">
-            Confirmar Compra
+            Confirmar pagamento
           </button>
         </div>
 
@@ -126,6 +129,12 @@
     _pagamento = tipo;
     document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('selected'));
     document.getElementById(`pay-${tipo.toLowerCase()}`).classList.add('selected');
+
+    // So exibe o botao de confirmacao depois que uma forma de pagamento foi escolhida
+    const hint = document.getElementById('pagamento-hint');
+    const btn  = document.getElementById('btn-comprar');
+    if (hint) hint.style.display = 'none';
+    if (btn)  btn.style.display  = 'block';
   }
 
   // ── Exibe animacao de loading ──────────────────────────────────────────────

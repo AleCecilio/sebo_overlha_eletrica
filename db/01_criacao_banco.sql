@@ -1,6 +1,16 @@
 -- ============================================================
--- SEBO ONLINE - Dump Completo do Banco de Dados
+-- SEBO OVELHA ELÉTRICA - Script de Criação do Banco de Dados
 -- Disciplina: Programação II - Web | UEMG - Unidade Passos
+--
+-- Este script cria a estrutura do banco (banco + tabelas +
+-- chaves + índices). Não contém dados.
+-- Estrutura idêntica à já utilizada pelo sistema (ver db/dump.sql),
+-- extraída aqui como script independente conforme solicitado.
+--
+-- Ordem de execução recomendada:
+--   1) 01_criacao_banco.sql        (este arquivo)
+--   2) 02_insercao_livros.sql
+--   3) 03_insercao_usuarios_teste.sql
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS sebo_online
@@ -114,52 +124,3 @@ CREATE INDEX idx_livros_titulo  ON livros(titulo);
 CREATE INDEX idx_livros_autor   ON livros(autor);
 CREATE INDEX idx_livros_genero  ON livros(genero);
 CREATE INDEX idx_tokens_expira  ON tokens_2fa(expira_em);
-
--- ============================================================
--- DADOS INICIAIS
--- ============================================================
--- CARGA DE LIVROS
--- Os INSERTs de livros são gerados automaticamente pelo script
--- Python localizado em: db/gerar_inserts.py
---
--- Para gerar o arquivo com os dados reais do dataset Kaggle:
---   1. Baixe o CSV em https://www.kaggle.com/datasets/jealousleopard/goodreadsbooks
---      (ou outro dataset de livros com capa_url)
---   2. Execute: python3 db/gerar_inserts.py caminho/para/books.csv
---   3. O script criará db/livros_inserts.sql com os INSERTs prontos
---   4. Importe: mysql -u root -p sebo_online < db/livros_inserts.sql
--- ============================================================
-
--- ============================================================
-
--- Senha: Admin@123 (bcrypt hash)
-INSERT INTO usuarios (nome, email, cpf, telefone, senha_hash, perfil) VALUES
-(
-  'Administrador',
-  'admin@seboonline.com',
-  '529.982.247-25',
-  '(35) 99000-0001',
-  '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- Admin@123
-  'ADMIN'
-),
-(
-  'Alessandro Cecilio',
-  'alessandro@email.com',
-  '987.654.321-00',
-  '(35) 99111-2222',
-  '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', -- ale123
-  'CLIENTE'
-),
-(
-  'João Paulo Borges',
-  'joaopaulo@email.com',
-  '123.456.789-09',
-  '(35) 99333-4444',
-  '$2b$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-  'CLIENTE'
-);
-
-INSERT INTO enderecos (usuario_id, cep, logradouro, numero, bairro, cidade, estado, principal) VALUES
-(2, '37902-144', 'Rua das Flores', '42', 'Centro', 'Passos', 'MG', 1),
-(3, '37901-000', 'Av. Getúlio Vargas', '100', 'Bairro Novo', 'Passos', 'MG', 1);
-
