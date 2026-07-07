@@ -13,7 +13,7 @@ async function checkout(req, res) {
   try {
     await conn.beginTransaction();
 
-    const { itens, endereco, forma_pagamento } = req.body;
+    const { itens, endereco, endereco_id: enderecoIdEnviado, forma_pagamento } = req.body;
     const usuario_id = req.usuario.id;
 
     // Validações básicas
@@ -23,19 +23,46 @@ async function checkout(req, res) {
     if (!['PIX', 'CARTAO'].includes(forma_pagamento)) {
       return res.status(400).json({ erro: 'Forma de pagamento inválida. Use PIX ou CARTAO.' });
     }
-    if (!endereco || !endereco.cep || !endereco.logradouro || !endereco.numero
-        || !endereco.bairro || !endereco.cidade || !endereco.estado) {
-      return res.status(400).json({ erro: 'Endereço completo é obrigatório para finalizar o pedido.' });
-    }
 
-    // Salva / busca endereço do usuário
-    const [endResult] = await conn.execute(
-      `INSERT INTO enderecos (usuario_id, cep, logradouro, numero, complemento, bairro, cidade, estado, principal)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
-      [usuario_id, endereco.cep, endereco.logradouro, endereco.numero,
-       endereco.complemento || null, endereco.bairro, endereco.cidade, endereco.estado]
-    );
-    const endereco_id = endResult.insertId;
+    // O checkout aceita um endereço já salvo (endereco_id, ver PARTE 5) ou um
+    // endereço novo digitado na hora (endereco {...}), mantendo compatibilidade
+    // com o fluxo anterior.
+    let endereco_id;
+
+    if (enderecoIdEnviado) {
+      const [enderecos] = await conn.execute(
+        'SELECT id FROM enderecos WHERE id = ? AND usuario_id = ?',
+        [enderecoIdEnviado, usuario_id]
+      );
+      if (enderecos.length === 0) {
+        await conn.rollback();
+        return res.status(404).json({ erro: 'Endereço selecionado não encontrado.' });
+      }
+      endereco_id = enderecos[0].id;
+
+    } else {
+      if (!endereco || !endereco.cep || !endereco.logradouro || !endereco.numero
+          || !endereco.bairro || !endereco.cidade || !endereco.estado) {
+        return res.status(400).json({ erro: 'Endereço completo é obrigatório para finalizar o pedido.' });
+      }
+
+      const [countRows] = await conn.execute(
+        'SELECT COUNT(*) AS total FROM enderecos WHERE usuario_id = ?',
+        [usuario_id]
+      );
+      if (Number(countRows[0].total) >= 5) {
+        await conn.rollback();
+        return res.status(409).json({ erro: 'Limite de 5 endereços por usuário atingido. Selecione um endereço já salvo.' });
+      }
+
+      const [endResult] = await conn.execute(
+        `INSERT INTO enderecos (usuario_id, cep, logradouro, numero, complemento, bairro, cidade, estado, principal)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+        [usuario_id, endereco.cep, endereco.logradouro, endereco.numero,
+         endereco.complemento || null, endereco.bairro, endereco.cidade, endereco.estado]
+      );
+      endereco_id = endResult.insertId;
+    }
 
     // Verifica estoque e calcula total
     let total = 0;

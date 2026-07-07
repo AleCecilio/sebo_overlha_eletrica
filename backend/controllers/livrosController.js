@@ -18,7 +18,12 @@ async function listar(req, res) {
     const offset      = (pagina - 1) * limite;
 
     const params    = [];
-    const condicoes = ['l.ativo = 1', 'l.estoque > 0'];
+    // Observação (correção do filtro de gênero): a coluna `genero` guarda
+    // múltiplas tags separadas por vírgula (ex: "Ficção, Aventura, Clássico").
+    // Removida a condição fixa `l.estoque > 0`: livros sem estoque agora
+    // continuam aparecendo no catálogo, porém marcados como indisponíveis
+    // pelo front-end (ver PARTE 12 do escopo).
+    const condicoes = ['l.ativo = 1'];
 
     if (busca) {
       condicoes.push('(l.titulo LIKE ? OR l.autor LIKE ? OR l.isbn LIKE ?)');
@@ -26,8 +31,10 @@ async function listar(req, res) {
       params.push(termo, termo, termo);
     }
     if (genero) {
-      condicoes.push('l.genero = ?');
-      params.push(genero);
+      // Compara a tag exata dentro da lista separada por vírgulas, e não a
+      // string inteira (que é o motivo do filtro não funcionar antes).
+      condicoes.push("CONCAT(',', REPLACE(l.genero, ', ', ','), ',') LIKE ?");
+      params.push(`%,${genero},%`);
     }
     if (conservacao) {
       condicoes.push('l.conservacao = ?');
@@ -64,6 +71,35 @@ async function listar(req, res) {
   } catch (err) {
     console.error('[listar]', err);
     return res.status(500).json({ erro: 'Erro ao listar livros.' });
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /generos
+// Retorna a lista de gêneros/tags distintos já usados no catálogo, para
+// alimentar dinamicamente o <select> de filtro do front-end (evita a
+// dessincronia entre as opções fixas do HTML e as tags reais salvas no banco).
+// ────────────────────────────────────────────────────────────────────────────
+async function listarGeneros(_req, res) {
+  try {
+    const [rows] = await db.execute(
+      `SELECT DISTINCT genero FROM livros WHERE ativo = 1 AND genero IS NOT NULL AND genero <> ''`
+    );
+
+    const set = new Set();
+    for (const row of rows) {
+      row.genero.split(',').forEach(tag => {
+        const limpo = tag.trim();
+        if (limpo) set.add(limpo);
+      });
+    }
+
+    const generos = Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    return res.status(200).json({ generos });
+
+  } catch (err) {
+    console.error('[listarGeneros]', err);
+    return res.status(500).json({ erro: 'Erro ao listar gêneros.' });
   }
 }
 
@@ -197,4 +233,4 @@ async function deletar(req, res) {
   }
 }
 
-module.exports = { listar, buscarPorId, salvar, editar, deletar };
+module.exports = { listar, listarGeneros, buscarPorId, salvar, editar, deletar };

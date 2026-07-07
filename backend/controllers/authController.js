@@ -28,6 +28,14 @@ function gerarCodigo6Digitos() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
+// ─── Cadastro de administrador via domínio + código especial ────────────────
+// Domínio que, se presente no e-mail informado no cadastro, exige o código
+// de administrador (PARTE 8 do escopo).
+const DOMINIO_ADMIN = '@seboovelhaeletrica';
+// Código padrão de administrador. Pode ser sobrescrito via variável de
+// ambiente ADMIN_SIGNUP_CODE sem precisar alterar código-fonte.
+const CODIGO_ADMIN = process.env.ADMIN_SIGNUP_CODE || 'OVELHA-ADMIN-2024';
+
 // ────────────────────────────────────────────────────────────────────────────
 // POST /auth/login
 // Body: { identificador, senha }
@@ -88,6 +96,77 @@ async function login(req, res) {
 
   } catch (err) {
     console.error('[login]', err);
+    return res.status(500).json({ erro: 'Erro interno no servidor.' });
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// POST /auth/cadastro
+// Cadastro de novo usuário (CLIENTE por padrão). Se o e-mail contiver o
+// domínio "@seboovelhaeletrica", exige `codigo_admin` correto para que a
+// conta seja criada com perfil ADMIN (PARTE 8 do escopo).
+// Body: { nome, email, telefone?, cpf?, senha, codigo_admin? }
+// ────────────────────────────────────────────────────────────────────────────
+async function cadastro(req, res) {
+  try {
+    const { nome, email, telefone, cpf, senha, codigo_admin } = req.body;
+
+    if (!nome || !email || !senha) {
+      return res.status(400).json({ erro: 'Nome, e-mail e senha são obrigatórios.' });
+    }
+    if (!REGEX_EMAIL.test(email.trim())) {
+      return res.status(400).json({ erro: 'E-mail inválido.' });
+    }
+    if (senha.length < 6) {
+      return res.status(400).json({ erro: 'A senha deve ter ao menos 6 caracteres.' });
+    }
+    if (cpf && !validarCpf(cpf)) {
+      return res.status(400).json({ erro: 'CPF inválido.' });
+    }
+
+    const emailNormalizado = email.trim().toLowerCase();
+    const exigeCodigoAdmin = emailNormalizado.includes(DOMINIO_ADMIN);
+
+    let perfil = 'CLIENTE';
+    if (exigeCodigoAdmin) {
+      if (!codigo_admin) {
+        return res.status(400).json({ erro: 'Código de administrador é obrigatório para este domínio de e-mail.' });
+      }
+      if (codigo_admin !== CODIGO_ADMIN) {
+        return res.status(403).json({ erro: 'Código de administrador inválido.' });
+      }
+      perfil = 'ADMIN';
+    }
+
+    const senhaHash = await bcrypt.hash(senha, 12);
+
+    const [result] = await db.execute(
+      `INSERT INTO usuarios (nome, email, cpf, telefone, senha_hash, perfil, ativo)
+       VALUES (?, ?, ?, ?, ?, ?, 1)`,
+      [nome.trim(), emailNormalizado, cpf || null, telefone || null, senhaHash, perfil]
+    );
+
+    const usuario = { id: result.insertId, nome: nome.trim(), email: emailNormalizado, perfil };
+
+    // Cadastro concluído → já emite o token de acesso (sem exigir 2FA na
+    // primeira entrada, mesmo comportamento já usado no login via Google).
+    const token = jwt.sign(
+      { id: usuario.id, nome: usuario.nome, email: usuario.email, perfil: usuario.perfil },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '8h' }
+    );
+
+    return res.status(201).json({
+      mensagem: perfil === 'ADMIN' ? 'Conta de administrador criada com sucesso!' : 'Conta criada com sucesso!',
+      token,
+      usuario,
+    });
+
+  } catch (err) {
+    if (err && err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ erro: 'Já existe uma conta com este e-mail, CPF ou telefone.' });
+    }
+    console.error('[cadastro]', err);
     return res.status(500).json({ erro: 'Erro interno no servidor.' });
   }
 }
@@ -244,4 +323,4 @@ async function googleAuth(req, res) {
   }
 }
 
-module.exports = { login, enviar2FA, verificar2FA, googleAuth, loginGoogle: googleAuth };
+module.exports = { login, cadastro, enviar2FA, verificar2FA, googleAuth, loginGoogle: googleAuth };
