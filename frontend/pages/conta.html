@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha Conta — Sebo Ovelha Elétrica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+<body>
+
+<!-- ── Navbar ─────────────────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <a class="navbar-brand" href="../index.html">
+    <img src="../assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha">
+     <span>Sebo</span> Ovelha Elétrica
+  </a>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+    <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
+    <span id="badge-admin" class="d-none" style="font-size:.7rem;background:var(--gradient-primary);color:#fff;padding:3px 10px;border-radius:var(--radius-full);font-weight:700;letter-spacing:.06em"><i class="fa fa-shield-halved"></i> ADMIN</span>
+    <a id="link-admin" href="admin.html" class="btn btn-outline d-none" style="height:36px;padding:0 14px;font-size:.85rem"><i class="fa fa-sliders"></i> Painel Admin</a>
+    <a href="../index.html" class="btn btn-outline" style="height:36px;padding:0 14px;font-size:.85rem"><i class="fa fa-store"></i> Vitrine</a>
+    <button class="btn btn-outline" onclick="window.SeBoApp.logout(); window.location='../index.html'" style="height:36px;padding:0 16px"><i class="fa fa-right-from-bracket"></i> Sair</button>
+  </div>
+</nav>
+
+<main class="container" style="max-width:820px;padding-top:32px;padding-bottom:60px">
+  <h1 style="font-family:var(--font-display);font-size:1.8rem;margin-bottom:24px">
+    <i class="fa fa-user-gear" style="color:var(--primary);margin-right:10px"></i>Minha Conta
+  </h1>
+
+  <div id="conta-loading" style="text-align:center;padding:64px;color:var(--text-muted)">
+    <i class="fa fa-spinner fa-spin" style="font-size:1.8rem;margin-bottom:16px;display:block"></i>Carregando...
+  </div>
+
+  <div id="conta-conteudo" style="display:none">
+
+    <!-- ── PERFIL ─────────────────────────────────────────────────────────── -->
+    <section class="conta-secao">
+      <h2 class="section-title" style="margin-bottom:16px">Perfil</h2>
+      <div class="row g-3 align-items-center mb-3">
+        <div class="col-auto">
+          <img id="perfil-avatar" class="conta-avatar" src="" alt="Foto de perfil" onerror="this.src='../assets/img/ovelha-robo.png'">
+        </div>
+        <div class="col">
+          <label class="form-label">URL da foto de perfil</label>
+          <input type="url" class="form-control" id="perfil-foto-url" placeholder="https://...">
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-control" id="perfil-nome">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-control" id="perfil-email">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Telefone</label>
+          <input type="text" class="form-control" id="perfil-telefone" placeholder="(35) 99000-0000">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Membro desde</label>
+          <input type="text" class="form-control" id="perfil-criado-em" disabled>
+        </div>
+      </div>
+      <button class="btn btn-primary mt-3" onclick="salvarPerfil()" id="btn-salvar-perfil">
+        <i class="fa fa-floppy-disk"></i> Salvar Alterações
+      </button>
+    </section>
+
+    <!-- ── ENDEREÇOS ──────────────────────────────────────────────────────── -->
+    <section class="conta-secao">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title mb-0">Endereços <span class="badge text-bg-secondary" id="badge-total-enderecos">0/5</span></h2>
+        <button class="btn btn-outline btn-sm" onclick="mostrarFormEndereco()" id="btn-novo-endereco">
+          <i class="fa fa-plus"></i> Novo Endereço
+        </button>
+      </div>
+
+      <div id="lista-enderecos"></div>
+
+      <div id="form-endereco" class="row g-2 mt-2" style="display:none">
+        <input type="hidden" id="end-id">
+        <div class="col-12 col-md-4">
+          <label class="form-label">CEP</label>
+          <input type="text" class="form-control" id="end-cep" placeholder="00000-000">
+        </div>
+        <div class="col-12 col-md-8">
+          <label class="form-label">Logradouro</label>
+          <input type="text" class="form-control" id="end-logradouro" placeholder="Rua das Flores">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label">Número</label>
+          <input type="text" class="form-control" id="end-numero">
+        </div>
+        <div class="col-6 col-md-3">
+          <label class="form-label">Complemento</label>
+          <input type="text" class="form-control" id="end-complemento">
+        </div>
+        <div class="col-12 col-md-3">
+          <label class="form-label">Bairro</label>
+          <input type="text" class="form-control" id="end-bairro">
+        </div>
+        <div class="col-8 col-md-2">
+          <label class="form-label">Cidade</label>
+          <input type="text" class="form-control" id="end-cidade">
+        </div>
+        <div class="col-4 col-md-1">
+          <label class="form-label">UF</label>
+          <input type="text" class="form-control" id="end-estado" maxlength="2">
+        </div>
+        <div class="col-12 d-flex gap-2 mt-2">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="end-principal">
+            <label class="form-check-label" for="end-principal">Definir como principal</label>
+          </div>
+        </div>
+        <div class="col-12 d-flex gap-2 mt-2">
+          <button class="btn btn-primary btn-sm" onclick="salvarEndereco()"><i class="fa fa-check"></i> Salvar Endereço</button>
+          <button class="btn btn-outline btn-sm" onclick="esconderFormEndereco()">Cancelar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── MINHAS COMPRAS ─────────────────────────────────────────────────── -->
+    <section class="conta-secao">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="section-title mb-0">Minhas Compras</h2>
+        <a href="pedidos.html" class="btn btn-outline btn-sm"><i class="fa fa-arrow-up-right-from-square"></i> Ver todos os pedidos</a>
+      </div>
+      <div id="resumo-pedidos" class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr><th>Pedido</th><th>Data</th><th>Status</th><th>Total</th></tr>
+          </thead>
+          <tbody id="tabela-pedidos-resumo">
+            <tr><td colspan="4" class="text-center text-muted">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── ZONA DE PERIGO ─────────────────────────────────────────────────── -->
+    <section class="conta-secao" style="border-color:rgba(220,38,38,.3)">
+      <h2 class="section-title" style="color:var(--danger);margin-bottom:12px">Zona de Risco</h2>
+      <p style="color:var(--text-secondary);font-size:.9rem">
+        Excluir sua conta desativa seu acesso ao sistema. Essa ação pode ser revertida apenas por um administrador.
+      </p>
+      <button class="btn" style="background:var(--danger-bg);color:var(--danger);border:1px solid rgba(220,38,38,.3)" onclick="excluirConta()">
+        <i class="fa fa-trash"></i> Excluir minha conta
+      </button>
+    </section>
+
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/login.js"></script>
+<script>
+  let _enderecosAtuais = [];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.SeBoApp.state.usuario) {
+      window.SeBoApp.toast('Faça login para acessar sua conta.', 'error');
+      setTimeout(() => window.location.href = '../index.html', 1200);
+      return;
+    }
+    window.SeBoApp.atualizarBadgeCarrinho();
+    window.SeBoApp.atualizarUIAuth();
+    carregarPerfil();
+    carregarEnderecos();
+    carregarResumoPedidos();
+  });
+
+  // ── Perfil (PARTE 6/7) ────────────────────────────────────────────────────
+  async function carregarPerfil() {
+    try {
+      const data = await window.SeBoApp.apiFetch('/usuarios/me');
+      const u = data.usuario;
+
+      document.getElementById('perfil-nome').value      = u.nome;
+      document.getElementById('perfil-email').value     = u.email;
+      document.getElementById('perfil-telefone').value  = u.telefone || '';
+      document.getElementById('perfil-foto-url').value  = u.foto_url || '';
+      document.getElementById('perfil-avatar').src       = u.foto_url || '../assets/img/ovelha-robo.png';
+      document.getElementById('perfil-criado-em').value = new Date(u.criado_em).toLocaleDateString('pt-BR');
+
+      if (u.perfil === 'ADMIN') {
+        document.getElementById('badge-admin').classList.remove('d-none');
+        document.getElementById('link-admin').classList.remove('d-none');
+      }
+
+      document.getElementById('conta-loading').style.display  = 'none';
+      document.getElementById('conta-conteudo').style.display = 'block';
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao carregar perfil.', 'error');
+    }
+  }
+
+  async function salvarPerfil() {
+    const body = {
+      nome:     document.getElementById('perfil-nome').value.trim(),
+      email:    document.getElementById('perfil-email').value.trim(),
+      telefone: document.getElementById('perfil-telefone').value.trim(),
+      foto_url: document.getElementById('perfil-foto-url').value.trim(),
+    };
+    const btn = document.getElementById('btn-salvar-perfil');
+    btn.disabled = true;
+    try {
+      await window.SeBoApp.apiFetch('/usuarios/me', { method: 'PUT', body: JSON.stringify(body) });
+      document.getElementById('perfil-avatar').src = body.foto_url || '../assets/img/ovelha-robo.png';
+      // Mantém o localStorage sincronizado com o nome exibido na navbar
+      const usuarioAtual = window.SeBoApp.state.usuario;
+      if (usuarioAtual) {
+        usuarioAtual.nome = body.nome;
+        window.SeBoApp.salvarAuth(localStorage.getItem('sebo_token'), usuarioAtual);
+        window.SeBoApp.atualizarUIAuth();
+      }
+      window.SeBoApp.toast('Perfil atualizado com sucesso!', 'success');
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao atualizar perfil.', 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── Endereços (PARTE 5) ──────────────────────────────────────────────────
+  async function carregarEnderecos() {
+    try {
+      const data = await window.SeBoApp.apiFetch('/enderecos');
+      _enderecosAtuais = data.enderecos || [];
+      renderizarEnderecos();
+    } catch (e) {
+      document.getElementById('lista-enderecos').innerHTML =
+        `<p style="color:var(--text-muted)">Não foi possível carregar seus endereços.</p>`;
+    }
+  }
+
+  function renderizarEnderecos() {
+    document.getElementById('badge-total-enderecos').textContent = `${_enderecosAtuais.length}/5`;
+    document.getElementById('btn-novo-endereco').disabled = _enderecosAtuais.length >= 5;
+
+    const lista = document.getElementById('lista-enderecos');
+    if (_enderecosAtuais.length === 0) {
+      lista.innerHTML = `<p style="color:var(--text-muted)">Você ainda não tem endereços cadastrados.</p>`;
+      return;
+    }
+    lista.innerHTML = _enderecosAtuais.map(e => `
+      <div class="endereco-card">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <strong>${e.logradouro}, ${e.numero}</strong>${e.principal ? '<span class="endereco-principal-tag">Principal</span>' : ''}<br>
+            <span style="font-size:.82rem;color:var(--text-secondary)">
+              ${e.complemento ? e.complemento + ' — ' : ''}${e.bairro} — ${e.cidade}/${e.estado} — CEP ${e.cep}
+            </span>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline btn-sm" onclick="editarEndereco(${e.id})"><i class="fa fa-pen"></i></button>
+            <button class="btn btn-sm" style="background:var(--danger-bg);color:var(--danger)" onclick="removerEndereco(${e.id})"><i class="fa fa-trash"></i></button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function mostrarFormEndereco() {
+    if (_enderecosAtuais.length >= 5) {
+      window.SeBoApp.toast('Limite de 5 endereços atingido.', 'error'); return;
+    }
+    ['end-id','end-cep','end-logradouro','end-numero','end-complemento','end-bairro','end-cidade','end-estado'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('end-principal').checked = false;
+    document.getElementById('form-endereco').style.display = 'flex';
+  }
+
+  function esconderFormEndereco() {
+    document.getElementById('form-endereco').style.display = 'none';
+  }
+
+  function editarEndereco(id) {
+    const e = _enderecosAtuais.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('end-id').value          = e.id;
+    document.getElementById('end-cep').value          = e.cep;
+    document.getElementById('end-logradouro').value   = e.logradouro;
+    document.getElementById('end-numero').value       = e.numero;
+    document.getElementById('end-complemento').value  = e.complemento || '';
+    document.getElementById('end-bairro').value       = e.bairro;
+    document.getElementById('end-cidade').value       = e.cidade;
+    document.getElementById('end-estado').value       = e.estado;
+    document.getElementById('end-principal').checked  = !!e.principal;
+    document.getElementById('form-endereco').style.display = 'flex';
+  }
+
+  async function salvarEndereco() {
+    const id = document.getElementById('end-id').value;
+    const body = {
+      cep:         document.getElementById('end-cep').value.trim(),
+      logradouro:  document.getElementById('end-logradouro').value.trim(),
+      numero:      document.getElementById('end-numero').value.trim(),
+      complemento: document.getElementById('end-complemento').value.trim(),
+      bairro:      document.getElementById('end-bairro').value.trim(),
+      cidade:      document.getElementById('end-cidade').value.trim(),
+      estado:      document.getElementById('end-estado').value.trim(),
+      principal:   document.getElementById('end-principal').checked,
+    };
+    if (!body.cep || !body.logradouro || !body.numero || !body.bairro || !body.cidade || !body.estado) {
+      window.SeBoApp.toast('Preencha todos os campos obrigatórios.', 'error'); return;
+    }
+    try {
+      if (id) {
+        await window.SeBoApp.apiFetch(`/enderecos/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+      } else {
+        await window.SeBoApp.apiFetch('/enderecos', { method: 'POST', body: JSON.stringify(body) });
+      }
+      window.SeBoApp.toast('Endereço salvo com sucesso!', 'success');
+      esconderFormEndereco();
+      carregarEnderecos();
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao salvar endereço.', 'error');
+    }
+  }
+
+  async function removerEndereco(id) {
+    if (!confirm('Remover este endereço?')) return;
+    try {
+      await window.SeBoApp.apiFetch(`/enderecos/${id}`, { method: 'DELETE' });
+      window.SeBoApp.toast('Endereço removido.', 'success');
+      carregarEnderecos();
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao remover endereço.', 'error');
+    }
+  }
+
+  // ── Resumo de compras ────────────────────────────────────────────────────
+  async function carregarResumoPedidos() {
+    const tbody = document.getElementById('tabela-pedidos-resumo');
+    try {
+      const data = await window.SeBoApp.apiFetch('/pedidos/meus');
+      const pedidos = (data.pedidos || []).slice(0, 5);
+      if (pedidos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhuma compra ainda.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = pedidos.map(p => `
+        <tr>
+          <td>#${p.id}</td>
+          <td>${new Date(p.criado_em).toLocaleDateString('pt-BR')}</td>
+          <td><span class="status-badge status-${p.status}">${p.status}</span></td>
+          <td>R$ ${parseFloat(p.total).toFixed(2).replace('.',',')}</td>
+        </tr>
+      `).join('');
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${e.mensagem || 'Erro ao carregar pedidos.'}</td></tr>`;
+    }
+  }
+
+  // ── Excluir conta (PARTE 6) ──────────────────────────────────────────────
+  async function excluirConta() {
+    if (!confirm('Tem certeza que deseja excluir sua conta? Você será desconectado imediatamente.')) return;
+    try {
+      await window.SeBoApp.apiFetch('/usuarios/me', { method: 'DELETE' });
+      window.SeBoApp.toast('Conta excluída. Até logo!', 'success');
+      window.SeBoApp.limparAuth();
+      setTimeout(() => window.location.href = '../index.html', 1200);
+    } catch (e) {
+      window.SeBoApp.toast(e.mensagem || 'Erro ao excluir conta.', 'error');
+    }
+  }
+</script>
+</body>
+</html>

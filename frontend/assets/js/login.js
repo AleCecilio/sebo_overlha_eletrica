@@ -7,8 +7,8 @@
   let _usuarioTemp = null; // dados após login bem-sucedido, antes do 2FA
   let _canalSelecionado = null;
 
-  // ── Abre o modal de login ───────────────────────────────────────────────
-  function abrirLogin() {
+  // ── Abre o modal de login/cadastro ──────────────────────────────────────
+  function abrirLogin(abaInicial = 'entrar') {
     if (document.getElementById('modal-login')) return;
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -16,36 +16,146 @@
     overlay.innerHTML = `
       <div class="modal" id="modal-login">
         <button class="modal-close" onclick="window.LoginModal.fechar()"><i class="fa fa-xmark"></i></button>
-        <div class="modal-title">Entrar</div>
-        <p class="modal-subtitle">Use seu e-mail, CPF ou telefone</p>
 
-        <div class="form-group">
-          <label>E-mail, CPF ou Telefone</label>
-          <input type="text" id="login-identificador" placeholder="ex: joao@email.com">
-          <div class="form-error" id="err-identificador"></div>
-        </div>
-        <div class="form-group">
-          <label>Senha</label>
-          <input type="password" id="login-senha" placeholder="••••••••">
-          <div class="form-error" id="err-senha"></div>
+        <div class="auth-tabs">
+          <div class="auth-tab" id="tab-entrar" onclick="window.LoginModal.mostrarAba('entrar')">Entrar</div>
+          <div class="auth-tab" id="tab-cadastrar" onclick="window.LoginModal.mostrarAba('cadastrar')">Cadastrar</div>
         </div>
 
-        <button class="btn btn-primary" style="width:100%;margin-bottom:12px" onclick="window.LoginModal.submeter()" id="btn-login-submit">
-          Continuar
-        </button>
+        <!-- ── Painel: Entrar ─────────────────────────────────────────── -->
+        <div id="painel-entrar">
+          <p class="modal-subtitle">Use seu e-mail, CPF ou telefone</p>
 
-        <div style="text-align:center;color:var(--text-muted);font-size:.85rem;margin-bottom:12px">— ou —</div>
+          <div class="form-group">
+            <label>E-mail, CPF ou Telefone</label>
+            <input type="text" id="login-identificador" placeholder="ex: joao@email.com">
+            <div class="form-error" id="err-identificador"></div>
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="login-senha" placeholder="••••••••">
+            <div class="form-error" id="err-senha"></div>
+          </div>
 
-        <button id="btn-google-auth" class="btn-social" onclick="window.LoginModal.google()">
-          <i class="fab fa-google"></i> Entrar com Google (simulado)
-        </button>
+          <button class="btn btn-primary" style="width:100%;margin-bottom:12px" onclick="window.LoginModal.submeter()" id="btn-login-submit">
+            Continuar
+          </button>
+
+          <div style="text-align:center;color:var(--text-muted);font-size:.85rem;margin-bottom:12px">— ou —</div>
+
+          <button id="btn-google-auth" class="btn-social" onclick="window.LoginModal.google()">
+            <i class="fab fa-google"></i> Entrar com Google (simulado)
+          </button>
+        </div>
+
+        <!-- ── Painel: Cadastrar ──────────────────────────────────────── -->
+        <div id="painel-cadastrar" style="display:none">
+          <p class="modal-subtitle">Crie sua conta gratuitamente</p>
+
+          <div class="form-group">
+            <label>Nome completo</label>
+            <input type="text" id="cad-nome" placeholder="Seu nome completo">
+            <div class="form-error" id="err-cad-nome"></div>
+          </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="cad-email" placeholder="ex: joao@email.com" oninput="window.LoginModal.verificarDominioAdmin()">
+            <div class="form-error" id="err-cad-email"></div>
+          </div>
+          <div class="form-group">
+            <label>Telefone (opcional)</label>
+            <input type="text" id="cad-telefone" placeholder="(35) 99000-0000">
+          </div>
+          <div class="form-group">
+            <label>CPF (opcional)</label>
+            <input type="text" id="cad-cpf" placeholder="000.000.000-00">
+            <div class="form-error" id="err-cad-cpf"></div>
+          </div>
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="password" id="cad-senha" placeholder="Mínimo 6 caracteres">
+            <div class="form-error" id="err-cad-senha"></div>
+          </div>
+
+          <!-- Campo de código de administrador: só aparece para e-mails com
+               o domínio @seboovelhaeletrica (PARTE 8 do escopo). Nunca é
+               exibido por padrão para clientes comuns. -->
+          <div class="form-group" id="grupo-codigo-admin" style="display:none">
+            <label><i class="fa fa-shield-halved"></i> Código de Administrador</label>
+            <input type="text" id="cad-codigo-admin" placeholder="Código fornecido pela administração">
+            <div class="form-error" id="err-cad-codigo-admin"></div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%" onclick="window.LoginModal.cadastrar()" id="btn-cadastrar-submit">
+            Criar Conta
+          </button>
+        </div>
       </div>`;
     document.body.appendChild(overlay);
     overlay.addEventListener('click', e => { if (e.target === overlay) window.LoginModal.fechar(); });
     document.getElementById('login-senha').addEventListener('keydown', e => {
       if (e.key === 'Enter') window.LoginModal.submeter();
     });
+    mostrarAba(abaInicial);
     setTimeout(() => document.getElementById('login-identificador').focus(), 100);
+  }
+
+  function mostrarAba(aba) {
+    document.getElementById('painel-entrar').style.display    = aba === 'entrar' ? 'block' : 'none';
+    document.getElementById('painel-cadastrar').style.display  = aba === 'cadastrar' ? 'block' : 'none';
+    document.getElementById('tab-entrar').classList.toggle('active', aba === 'entrar');
+    document.getElementById('tab-cadastrar').classList.toggle('active', aba === 'cadastrar');
+  }
+
+  // Mostra o campo de código de administrador apenas quando o e-mail digitado
+  // contém o domínio @seboovelhaeletrica. Nunca aparece para clientes comuns.
+  function verificarDominioAdmin() {
+    const email = document.getElementById('cad-email').value.trim().toLowerCase();
+    const grupo = document.getElementById('grupo-codigo-admin');
+    grupo.style.display = email.includes('@seboovelhaeletrica') ? 'block' : 'none';
+  }
+
+  async function cadastrar() {
+    const nome      = document.getElementById('cad-nome').value.trim();
+    const email     = document.getElementById('cad-email').value.trim();
+    const telefone  = document.getElementById('cad-telefone').value.trim();
+    const cpf       = document.getElementById('cad-cpf').value.trim();
+    const senha     = document.getElementById('cad-senha').value;
+    const codigoAdmin = document.getElementById('cad-codigo-admin').value.trim();
+
+    ['err-cad-nome','err-cad-email','err-cad-cpf','err-cad-senha','err-cad-codigo-admin'].forEach(id => {
+      document.getElementById(id).textContent = '';
+    });
+
+    if (!nome)  { document.getElementById('err-cad-nome').textContent = 'Campo obrigatório.'; return; }
+    if (!email) { document.getElementById('err-cad-email').textContent = 'Campo obrigatório.'; return; }
+    if (!senha || senha.length < 6) { document.getElementById('err-cad-senha').textContent = 'Mínimo de 6 caracteres.'; return; }
+    if (cpf && !validarCpf(cpf)) { document.getElementById('err-cad-cpf').textContent = 'CPF inválido.'; return; }
+
+    const btn = document.getElementById('btn-cadastrar-submit');
+    btn.innerHTML = '<span class="spinner"></span>';
+    btn.disabled = true;
+
+    try {
+      const data = await apiFetch('/auth/cadastro', {
+        method: 'POST',
+        body: JSON.stringify({
+          nome, email, telefone: telefone || null, cpf: cpf || null, senha,
+          codigo_admin: codigoAdmin || undefined,
+        }),
+      });
+      salvarAuth(data.token, data.usuario);
+      fecharModal();
+      atualizarUIAuth();
+      toast(`Bem-vindo(a), ${data.usuario.nome.split(' ')[0]}!`, 'success');
+    } catch (e) {
+      toast(e.mensagem || 'Erro ao criar conta.', 'error');
+    } finally {
+      if (document.getElementById('btn-cadastrar-submit')) {
+        btn.innerHTML = 'Criar Conta';
+        btn.disabled = false;
+      }
+    }
   }
 
   async function submeterLogin() {
@@ -263,6 +373,9 @@
   window.LoginModal = {
     abrir: abrirLogin,
     fechar: fecharModal,
+    mostrarAba,
+    verificarDominioAdmin,
+    cadastrar,
     submeter: submeterLogin,
     google: googleAuth,
     selecionarCanal,

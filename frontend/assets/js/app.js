@@ -59,20 +59,45 @@ function toast(msg, tipo = '', duracao = 3500) {
 }
 
 // ── Carrinho ──────────────────────────────────────────────────────────────
-function adicionarAoCarrinho(livro) {
+function adicionarAoCarrinho(livro, quantidade = 1) {
+  quantidade = Math.max(1, parseInt(quantidade) || 1);
+
+  if (livro.estoque <= 0) {
+    toast('Este livro está indisponível (sem estoque).', 'error');
+    return;
+  }
+
   const idx = state.carrinho.findIndex(i => i.id === livro.id);
   if (idx >= 0) {
-    if (state.carrinho[idx].quantidade < livro.estoque) {
-      state.carrinho[idx].quantidade++;
+    const novaQtd = state.carrinho[idx].quantidade + quantidade;
+    if (novaQtd <= livro.estoque) {
+      state.carrinho[idx].quantidade = novaQtd;
     } else {
-      toast('Quantidade máxima em estoque atingida.', 'error'); return;
+      state.carrinho[idx].quantidade = livro.estoque;
+      toast('Quantidade máxima em estoque atingida.', 'error');
     }
   } else {
-    state.carrinho.push({ ...livro, quantidade: 1 });
+    state.carrinho.push({ ...livro, quantidade: Math.min(quantidade, livro.estoque) });
   }
   salvarCarrinho();
   atualizarBadgeCarrinho();
   toast(`"${livro.titulo}" adicionado ao carrinho!`, 'success');
+}
+
+// Ajusta a quantidade de um item já presente no carrinho, respeitando o
+// estoque disponível do livro (nunca ultrapassa) e nunca deixando a
+// quantidade cair abaixo de 1 (para remover, usar removerDoCarrinho).
+function atualizarQuantidadeCarrinho(id, novaQuantidade) {
+  const idx = state.carrinho.findIndex(i => i.id === id);
+  if (idx < 0) return;
+
+  let qtd = parseInt(novaQuantidade) || 1;
+  qtd = Math.max(1, Math.min(qtd, state.carrinho[idx].estoque || qtd));
+
+  state.carrinho[idx].quantidade = qtd;
+  salvarCarrinho();
+  atualizarBadgeCarrinho();
+  renderizarCarrinho();
 }
 
 function removerDoCarrinho(id) {
@@ -118,6 +143,12 @@ function renderizarCarrinho() {
           <div style="font-size:.8rem;color:var(--text-secondary);margin-bottom:4px">${item.autor}</div>
           <div class="cart-item-price">R$ ${(parseFloat(item.preco) * item.quantidade).toFixed(2).replace('.',',')}
             <span style="font-weight:400;font-size:.8rem;color:var(--text-secondary)"> (${item.quantidade}x)</span>
+          </div>
+          <div class="qty-stepper cart-item-qty">
+            <button type="button" onclick="window.SeBoApp.atualizarQuantidadeCarrinho(${item.id}, ${item.quantidade - 1})" ${item.quantidade <= 1 ? 'disabled' : ''}>−</button>
+            <input type="number" min="1" max="${item.estoque || 99}" value="${item.quantidade}"
+              onchange="window.SeBoApp.atualizarQuantidadeCarrinho(${item.id}, this.value)">
+            <button type="button" onclick="window.SeBoApp.atualizarQuantidadeCarrinho(${item.id}, ${item.quantidade + 1})" ${item.quantidade >= (item.estoque || 99) ? 'disabled' : ''}>+</button>
           </div>
         </div>
         <button class="cart-item-remove" onclick="removerDoCarrinho(${item.id})" title="Remover"><i class="fa fa-xmark"></i></button>
@@ -189,18 +220,21 @@ function atualizarUIAuth() {
   const btnLogin   = document.getElementById("btn-login");
   const btnLogout  = document.getElementById("btn-logout");
   const btnPedidos = document.getElementById("btn-pedidos");
+  const btnConta   = document.getElementById("btn-conta");
   const btnAdmin   = document.getElementById("btn-admin");
   const userInfo   = document.getElementById("user-info");
   if (state.usuario) {
     if (btnLogin)   btnLogin.style.display   = "none";
     if (btnLogout)  btnLogout.style.display  = "flex";
     if (btnPedidos) btnPedidos.style.display = "flex";
+    if (btnConta)   btnConta.style.display   = "flex";
     if (btnAdmin)   btnAdmin.style.display   = state.usuario.perfil === "ADMIN" ? "flex" : "none";
     if (userInfo)   userInfo.textContent     = state.usuario.nome.split(" ")[0];
   } else {
     if (btnLogin)   btnLogin.style.display   = "flex";
     if (btnLogout)  btnLogout.style.display  = "none";
     if (btnPedidos) btnPedidos.style.display = "none";
+    if (btnConta)   btnConta.style.display   = "none";
     if (btnAdmin)   btnAdmin.style.display   = "none";
     if (userInfo)   userInfo.textContent     = "";
   }
@@ -209,7 +243,7 @@ function atualizarUIAuth() {
 // Exportar para uso nos outros scripts
 window.SeBoApp = {
   state, API, apiFetch, toast,
-  adicionarAoCarrinho, removerDoCarrinho,
+  adicionarAoCarrinho, removerDoCarrinho, atualizarQuantidadeCarrinho,
   renderizarCarrinho, abrirCarrinho, fecharCarrinho,
   atualizarBadgeCarrinho, totalCarrinho,
   salvarAuth, limparAuth, atualizarUIAuth, logout,

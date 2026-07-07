@@ -4,8 +4,9 @@
 (function () {
   const { state, apiFetch, toast, totalCarrinho, fecharCarrinho, atualizarBadgeCarrinho } = window.SeBoApp;
   let _pagamento = null;
+  let _enderecoSelecionadoId = null; // id de um endereço já salvo, se escolhido
 
-  function abrirCheckout() {
+  async function abrirCheckout() {
     if (!state.usuario) {
       toast('Faca login para finalizar a compra.', 'error');
       fecharCarrinho();
@@ -16,6 +17,16 @@
       toast('Seu carrinho esta vazio.', 'error'); return;
     }
     if (document.getElementById('modal-checkout-overlay')) return;
+
+    _enderecoSelecionadoId = null;
+
+    // Busca endereços já salvos do usuário para oferecer como opção rápida
+    // (PARTE 5 do escopo), sem obrigar a digitar tudo de novo.
+    let enderecosSalvos = [];
+    try {
+      const data = await apiFetch('/enderecos');
+      enderecosSalvos = data.enderecos || [];
+    } catch (_e) { /* segue sem endereços salvos */ }
 
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay checkout-modal';
@@ -34,7 +45,21 @@
             Endereco de Entrega
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          ${enderecosSalvos.length > 0 ? `
+            <div id="enderecos-salvos-lista">
+              ${enderecosSalvos.map(e => `
+                <div class="endereco-card" id="end-salvo-${e.id}" onclick="window.Checkout.selecionarEnderecoSalvo(${e.id})">
+                  <strong>${e.logradouro}, ${e.numero}</strong>${e.principal ? '<span class="endereco-principal-tag">Principal</span>' : ''}<br>
+                  <span style="font-size:.82rem;color:var(--text-secondary)">${e.bairro} — ${e.cidade}/${e.estado} — CEP ${e.cep}</span>
+                </div>
+              `).join('')}
+              <div class="endereco-card" id="end-salvo-novo" onclick="window.Checkout.selecionarEnderecoSalvo(null)">
+                <i class="fa fa-plus"></i> <strong>Usar um novo endereço</strong>
+              </div>
+            </div>
+          ` : ''}
+
+          <div id="endereco-form-manual" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="form-group" style="grid-column:1/-1">
               <label>CEP</label>
               <input type="text" id="end-cep" placeholder="00000-000" maxlength="9">
@@ -105,11 +130,34 @@
     document.body.appendChild(overlay);
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
+    // Se já existe endereço salvo, seleciona o principal (ou o primeiro) por
+    // padrão e esconde o formulario manual até o usuario pedir "novo endereço".
+    if (enderecosSalvos.length > 0) {
+      const principal = enderecosSalvos.find(e => e.principal) || enderecosSalvos[0];
+      selecionarEnderecoSalvo(principal.id);
+    }
+
     // Auto-preenche CEP via ViaCEP
     document.getElementById('end-cep').addEventListener('blur', function () {
       const cep = this.value.replace(/\D/g, '');
       if (cep.length === 8) buscarCep(cep);
     });
+  }
+
+  function selecionarEnderecoSalvo(id) {
+    _enderecoSelecionadoId = id;
+    document.querySelectorAll('.endereco-card').forEach(el => el.classList.remove('selecionado'));
+    const formManual = document.getElementById('endereco-form-manual');
+
+    if (id) {
+      const card = document.getElementById(`end-salvo-${id}`);
+      if (card) card.classList.add('selecionado');
+      if (formManual) formManual.style.display = 'none';
+    } else {
+      const card = document.getElementById('end-salvo-novo');
+      if (card) card.classList.add('selecionado');
+      if (formManual) formManual.style.display = 'grid';
+    }
   }
 
   async function buscarCep(cep) {
@@ -146,18 +194,22 @@
   }
 
   async function finalizar() {
-    const campos = {
-      cep:        document.getElementById('end-cep')?.value.trim(),
-      logradouro: document.getElementById('end-logradouro')?.value.trim(),
-      numero:     document.getElementById('end-numero')?.value.trim(),
-      complemento:document.getElementById('end-complemento')?.value.trim(),
-      bairro:     document.getElementById('end-bairro')?.value.trim(),
-      cidade:     document.getElementById('end-cidade')?.value.trim(),
-      estado:     document.getElementById('end-estado')?.value.trim().toUpperCase(),
-    };
+    let campos = null;
 
-    if (!campos.cep || !campos.logradouro || !campos.numero || !campos.bairro || !campos.cidade || !campos.estado) {
-      toast('Preencha todos os campos do endereco.', 'error'); return;
+    if (!_enderecoSelecionadoId) {
+      campos = {
+        cep:        document.getElementById('end-cep')?.value.trim(),
+        logradouro: document.getElementById('end-logradouro')?.value.trim(),
+        numero:     document.getElementById('end-numero')?.value.trim(),
+        complemento:document.getElementById('end-complemento')?.value.trim(),
+        bairro:     document.getElementById('end-bairro')?.value.trim(),
+        cidade:     document.getElementById('end-cidade')?.value.trim(),
+        estado:     document.getElementById('end-estado')?.value.trim().toUpperCase(),
+      };
+
+      if (!campos.cep || !campos.logradouro || !campos.numero || !campos.bairro || !campos.cidade || !campos.estado) {
+        toast('Preencha todos os campos do endereco, ou selecione um endereco salvo.', 'error'); return;
+      }
     }
     if (!_pagamento) {
       toast('Selecione uma forma de pagamento.', 'error'); return;
@@ -173,9 +225,13 @@
     setTimeout(async () => {
       try {
         const itens = state.carrinho.map(i => ({ livro_id: i.id, quantidade: i.quantidade }));
+        const corpo = _enderecoSelecionadoId
+          ? { itens, endereco_id: _enderecoSelecionadoId, forma_pagamento: _pagamento }
+          : { itens, endereco: campos, forma_pagamento: _pagamento };
+
         const data  = await apiFetch('/pedidos/checkout', {
           method: 'POST',
-          body: JSON.stringify({ itens, endereco: campos, forma_pagamento: _pagamento }),
+          body: JSON.stringify(corpo),
         });
 
         // Limpa carrinho
@@ -217,5 +273,5 @@
     document.body.appendChild(overlay);
   }
 
-  window.Checkout = { abrir: abrirCheckout, selecionarPagamento, finalizar };
+  window.Checkout = { abrir: abrirCheckout, selecionarPagamento, selecionarEnderecoSalvo, finalizar };
 })();
