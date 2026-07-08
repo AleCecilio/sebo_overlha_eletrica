@@ -203,7 +203,7 @@ async function enviar2FA(req, res) {
     const destino = canal === 'EMAIL' ? user[0]?.email : user[0]?.telefone;
 
     console.log('\n══════════════════════════════════════════');
-    console.log(`📨 [SIMULAÇÃO DE ${canal}]`);
+    console.log(`  [SIMULAÇÃO DE ${canal}]`);
     console.log(`   Destinatário : ${destino}`);
     console.log(`   Código 2FA   : ${codigo}`);
     console.log(`   Válido até   : ${expiraEm.toLocaleString('pt-BR')}`);
