@@ -8,7 +8,11 @@ SET NAMES utf8mb4;
 -- Disciplina: Programação II - Web | UEMG - Unidade Passos
 --
 -- Script separado para popular a tabela `usuarios` com duas
--- contas genéricas de teste: uma CLIENTE e uma ADMIN.
+-- contas genéricas de teste: uma CLIENTE e uma ADMIN — e um
+-- endereço válido para cada uma (necessário para testar o
+-- checkout e a página de conta sem precisar cadastrar um
+-- endereço manualmente antes).
+--
 -- As senhas estão em hash bcrypt (12 rounds), no mesmo padrão
 -- já usado pelo projeto (ver backend/gerar-hash.js).
 --
@@ -22,9 +26,9 @@ SET NAMES utf8mb4;
 -- console do backend e retornado em `codigo_dev` quando
 -- NODE_ENV=development).
 --
--- Execute depois de 01_criacao_banco.sql (a tabela usuarios
--- precisa existir). Pode ser executado antes ou depois de
--- 02_insercao_livros.sql, pois não há relação entre as tabelas.
+-- Execute depois de 01_criacao_banco.sql (as tabelas usuarios e
+-- enderecos precisam existir). Pode ser executado antes ou depois
+-- de 02_insercao_livros.sql, pois não há relação entre as tabelas.
 -- ============================================================
 
 USE sebo_online;
@@ -48,3 +52,20 @@ INSERT INTO usuarios (nome, email, cpf, telefone, senha_hash, perfil, ativo) VAL
   'ADMIN',
   1
 );
+
+-- ============================================================
+-- Endereços de teste para as duas contas acima (um cada), para
+-- que o checkout e a página "Minha Conta" já tenham dados prontos
+-- sem exigir cadastro manual de endereço antes de testar.
+-- ============================================================
+INSERT INTO enderecos (usuario_id, cep, logradouro, numero, complemento, bairro, cidade, estado, principal)
+SELECT u.id, '37900-000', 'Rua Marechal Deodoro', '120', NULL, 'Centro', 'Passos', 'MG', 1
+FROM usuarios u
+WHERE u.email = 'cliente@seboovelhaeletrica.com'
+  AND NOT EXISTS (SELECT 1 FROM enderecos e WHERE e.usuario_id = u.id);
+
+INSERT INTO enderecos (usuario_id, cep, logradouro, numero, complemento, bairro, cidade, estado, principal)
+SELECT u.id, '37900-100', 'Avenida Doutor Rasi', '450', 'Sala 2', 'Vila Marial', 'Passos', 'MG', 1
+FROM usuarios u
+WHERE u.email = 'administrador@seboovelhaeletrica.com'
+  AND NOT EXISTS (SELECT 1 FROM enderecos e WHERE e.usuario_id = u.id);
