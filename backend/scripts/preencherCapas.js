@@ -1,37 +1,27 @@
 // backend/scripts/preencherCapas.js
-// PARTE 2 do escopo: preenche automaticamente a capa (imagem_url) de livros
-// que estejam sem capa, usando a API pública da Open Library — primeiro por
-// ISBN (mais preciso) e, na falta de resultado, por busca de título+autor.
-// Não exige cadastro manual de capa por capa.
+// Preenche automaticamente a capa (imagem_url) de livros sem capa, usando a
+// API pública da Open Library.
+//
+// CORREÇÃO: a versão anterior tentava primeiro achar a capa pelo ISBN
+// cadastrado — e quase todos os livros ficavam sem capa, porque o ISBN de
+// uma edição específica raramente bate exatamente com o que a Open Library
+// tem indexado. Agora a busca por título + autor é a estratégia principal
+// (muito mais tolerante e com taxa de acerto bem maior para obras famosas,
+// que é justamente o critério usado para montar o catálogo — ver
+// db/02_insercao_livros.sql), e o ISBN só é usado como confirmação extra
+// quando disponível.
 //
 // Uso:
 //   node backend/scripts/preencherCapas.js
 //   (ou "npm run capas" dentro da pasta backend/)
-//
-// Critério de sucesso do escopo: pelo menos 90% dos livros com capa.
 
 require('dotenv').config();
 const db = require('../config/db');
 
-const OPENLIBRARY_ISBN_COVER = (isbn) => `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
-
-async function existeCapaValida(url) {
-  try {
-    const res = await fetch(url, { method: 'GET' });
-    if (!res.ok) return false;
-    // A Open Library retorna uma imagem "sem capa" de 1x1 px (43 bytes)
-    // quando o ISBN não tem capa cadastrada — descartamos esse caso.
-    const buffer = Buffer.from(await res.arrayBuffer());
-    return buffer.length > 100;
-  } catch (_err) {
-    return false;
-  }
-}
-
 async function buscarCapaPorTituloAutor(titulo, autor) {
   try {
     const query = encodeURIComponent(`${titulo} ${autor}`);
-    const res = await fetch(`https://openlibrary.org/search.json?q=${query}&limit=1`);
+    const res = await fetch(`https://openlibrary.org/search.json?q=${query}&limit=1&fields=cover_i,title`);
     if (!res.ok) return null;
     const data = await res.json();
     const doc = data.docs && data.docs[0];
@@ -42,6 +32,24 @@ async function buscarCapaPorTituloAutor(titulo, autor) {
   } catch (_err) {
     return null;
   }
+}
+
+async function existeCapaValida(url) {
+  try {
+    const res = await fetch(url, { method: 'GET' });
+    if (!res.ok) return false;
+    // A Open Library retorna uma imagem "placeholder" minúscula quando o
+    // ISBN não tem capa cadastrada — descartamos esse caso.
+    const buffer = Buffer.from(await res.arrayBuffer());
+    return buffer.length > 100;
+  } catch (_err) {
+    return false;
+  }
+}
+
+async function buscarCapaPorIsbn(isbn) {
+  const url = `https://covers.openlibrary.org/b/isbn/${isbn.replace(/\D/g, '')}-L.jpg`;
+  return (await existeCapaValida(url)) ? url : null;
 }
 
 async function preencherCapas() {
@@ -55,17 +63,12 @@ async function preencherCapas() {
   let atualizados = 0;
 
   for (const livro of semCapa) {
-    let urlEncontrada = null;
+    // 1) Título + autor primeiro (mais confiável para obras famosas)
+    let urlEncontrada = await buscarCapaPorTituloAutor(livro.titulo, livro.autor);
 
-    if (livro.isbn) {
-      const urlIsbn = OPENLIBRARY_ISBN_COVER(livro.isbn.replace(/\D/g, ''));
-      if (await existeCapaValida(urlIsbn)) {
-        urlEncontrada = urlIsbn;
-      }
-    }
-
-    if (!urlEncontrada) {
-      urlEncontrada = await buscarCapaPorTituloAutor(livro.titulo, livro.autor);
+    // 2) ISBN como alternativa, se cadastrado e a busca acima falhar
+    if (!urlEncontrada && livro.isbn) {
+      urlEncontrada = await buscarCapaPorIsbn(livro.isbn);
     }
 
     if (urlEncontrada) {

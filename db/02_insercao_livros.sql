@@ -1,126 +1,136 @@
+-- Garante que o cliente MySQL importe este arquivo como UTF-8, evitando
+-- corrupção de acentos (títulos, nomes) quando o charset padrão do cliente
+-- for latin1 (comum em muitas instalações/ferramentas).
+SET NAMES utf8mb4;
+
 -- ============================================================
--- SEBO OVELHA ELÉTRICA - Carga de Livros (dados completos)
+-- SEBO OVELHA ELÉTRICA - Inserção de Livros (v2)
 -- Disciplina: Programação II - Web | UEMG - Unidade Passos
 --
--- Script separado responsável apenas por popular a tabela
--- `livros` com um catálogo curado: título, autor, ISBN real,
--- editora, ano, gênero + tags (coluna `genero`, já que o
--- projeto não possui tabela de tags separada), sinopse própria,
--- estado de conservação, preço, estoque e capa (via Open
--- Library Covers API, buscada pelo ISBN real de cada edição).
+-- CORREÇÃO (item 5 do escopo de ajustes): a lista anterior de livros usava
+-- títulos pouco catalogados e ISBNs pouco confiáveis, resultando em quase
+-- nenhuma capa preenchida pela Open Library. Esta versão troca o catálogo
+-- por 20 obras extremamente famosas e amplamente catalogadas
+-- internacionalmente, priorizando taxa de acerto de capa em vez de volume.
 --
--- Observação sobre as capas:
--- A URL de capa usa o padrão https://covers.openlibrary.org/b/isbn/{ISBN}-L.jpg
--- Caso algum ISBN não tenha capa cadastrada na Open Library no
--- momento da consulta, a imagem correspondente simplesmente não
--- carrega (a API não retorna capa de outro livro por engano) —
--- nesse caso, basta atualizar a coluna imagem_url manualmente.
+-- `imagem_url` já vem preenchida para os títulos com ISBN internacional
+-- padronizado e confirmado (ex: 1984). Para os demais, o campo é deixado
+-- em branco e deve ser preenchido rodando:
+--     cd backend && npm run capas
+-- (script atualizado — busca primeiro por título+autor na Open Library,
+-- que tem taxa de acerto muito maior para obras famosas do que tentar
+-- adivinhar o ISBN exato de cada edição).
 --
--- Execute depois de 01_criacao_banco.sql.
+-- Este script SUBSTITUI o antigo 02_insercao_livros.sql. Rode-o com o
+-- banco já criado (ex: logo após 01_criacao_banco.sql), antes do
+-- 03_insercao_usuarios_teste.sql e do 04_migracao_expansao.sql.
 -- ============================================================
 
 USE sebo_online;
 
+-- DELETE FROM livros;
+ALTER TABLE livros AUTO_INCREMENT = 1;
+
 INSERT INTO livros
-  (titulo, autor, isbn, editora, ano_publicacao, genero, sinopse, conservacao, preco, estoque, imagem_url, ativo)
+  (titulo, autor, isbn, editora, ano_publicacao, genero, sinopse, conservacao, preco, estoque, imagem_url)
 VALUES
 
-('1984', 'George Orwell', '9788535914849', 'Companhia das Letras', 2009,
+('1984', 'George Orwell', '9780451524935', 'Companhia das Letras', 1949,
  'Ficção Científica, Distopia, Clássico',
- 'Numa Oceânia governada pelo Grande Irmão, Winston Smith vive sob vigilância constante e começa a questionar a verdade oficial do Partido, arriscando tudo por liberdade de pensamento.',
- 'Ótimo', 39.90, 5, 'https://covers.openlibrary.org/b/isbn/9788535914849-L.jpg', 1),
+ 'Em um regime totalitário que controla até os pensamentos dos cidadãos, Winston Smith arrisca tudo em busca de liberdade e verdade.',
+ 'Ótimo', 39.90, 6, 'https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg'),
 
-('A Revolução dos Bichos', 'George Orwell', '9788535909555', 'Companhia das Letras', 2007,
- 'Ficção, Sátira, Clássico',
- 'Os animais de uma fazenda expulsam os humanos e tentam construir uma sociedade igualitária, mas o poder acaba corrompendo os próprios líderes da revolução.',
- 'Bom', 32.50, 6, 'https://covers.openlibrary.org/b/isbn/9788535909555-L.jpg', 1),
+('A Revolução dos Bichos', 'George Orwell', NULL, 'Companhia das Letras', 1945,
+ 'Sátira, Ficção Política, Clássico',
+ 'Os animais de uma fazenda expulsam os humanos e tentam construir uma sociedade igualitária — até o poder corromper os próprios líderes.',
+ 'Bom', 32.90, 5, NULL),
 
-('Dom Casmurro', 'Machado de Assis', '9788582850350', 'Penguin-Companhia', 2016,
+('Dom Casmurro', 'Machado de Assis', NULL, 'Ática', 2013,
  'Literatura Brasileira, Romance, Clássico',
- 'Bentinho narra, já velho e desconfiado, a história de seu casamento com Capitu, revisitando lembranças de infância para tentar provar uma traição que talvez só exista em sua própria imaginação.',
- 'Bom', 28.90, 4, 'https://covers.openlibrary.org/b/isbn/9788582850350-L.jpg', 1),
+ 'Bentinho narra sua obsessão pelo ciúme de Capitu, em um dos maiores clássicos da literatura brasileira.',
+ 'Bom', 29.90, 5, NULL),
 
-('Memórias Póstumas de Brás Cubas', 'Machado de Assis', '9788582850015', 'Penguin-Companhia', 2014,
+('Memórias Póstumas de Brás Cubas', 'Machado de Assis', NULL, 'Ática', 2011,
  'Literatura Brasileira, Romance, Clássico',
- 'Um defunto-autor conta, com ironia e humor ácido, a própria vida e os pequenos fracassos e vaidades da sociedade carioca do século XIX.',
- 'Ótimo', 27.90, 5, 'https://covers.openlibrary.org/b/isbn/9788582850015-L.jpg', 1),
+ 'Narrado por um defunto-autor, o romance ironiza os costumes da sociedade brasileira do século XIX.',
+ 'Regular', 27.90, 4, NULL),
 
-('Vidas Secas', 'Graciliano Ramos', '9788501013210', 'Record', 2015,
- 'Literatura Brasileira, Romance, Clássico',
- 'Uma família de retirantes atravessa o sertão nordestino fugindo da seca, em uma narrativa seca e direta sobre miséria, resistência e desumanização.',
- 'Regular', 22.00, 3, 'https://covers.openlibrary.org/b/isbn/9788501013210-L.jpg', 1),
-
-('O Cortiço', 'Aluísio Azevedo', '9788572329231', 'Martin Claret', 2010,
+('O Cortiço', 'Aluísio Azevedo', NULL, 'Ática', 2012,
  'Literatura Brasileira, Naturalismo, Clássico',
- 'O cotidiano de um cortiço no Rio de Janeiro do século XIX revela os instintos, disputas e contrastes sociais de seus moradores, sob a ótica naturalista de Aluísio Azevedo.',
- 'Regular', 19.90, 4, 'https://covers.openlibrary.org/b/isbn/9788572329231-L.jpg', 1),
+ 'Retrato cru da vida em um cortiço carioca, onde os instintos humanos se sobrepõem à moral da época.',
+ 'Regular', 26.90, 3, NULL),
 
-('Grande Sertão: Veredas', 'Guimarães Rosa', '9788520925215', 'Nova Fronteira', 2006,
- 'Literatura Brasileira, Romance, Clássico',
- 'O jagunço Riobaldo narra suas travessias pelo sertão mineiro, misturando aventura, amor e uma reflexão profunda sobre o bem, o mal e o destino.',
- 'Bom', 45.00, 3, 'https://covers.openlibrary.org/b/isbn/9788520925215-L.jpg', 1),
+('Capitães da Areia', 'Jorge Amado', NULL, 'Companhia das Letras', 1937,
+ 'Literatura Brasileira, Drama, Clássico',
+ 'Um bando de meninos de rua vive de pequenos furtos nas ruas de Salvador, entre a sobrevivência e o sonho.',
+ 'Bom', 34.90, 5, NULL),
 
-('A Hora da Estrela', 'Clarice Lispector', '9788532502463', 'Rocco', 2018,
- 'Literatura Brasileira, Romance',
- 'A trajetória simples e melancólica de Macabéa, uma jovem nordestina perdida na cidade grande, narrada por um narrador que se envolve cada vez mais com o destino da própria personagem.',
- 'Novo', 34.90, 6, 'https://covers.openlibrary.org/b/isbn/9788532502463-L.jpg', 1),
+('O Pequeno Príncipe', 'Antoine de Saint-Exupéry', NULL, 'Agir', 1943,
+ 'Fábula, Infantojuvenil, Clássico',
+ 'Um piloto perdido no deserto encontra um pequeno príncipe vindo de outro planeta, que lhe ensina sobre o que é essencial na vida.',
+ 'Novo', 42.90, 8, NULL),
 
-('O Pequeno Príncipe', 'Antoine de Saint-Exupéry', '9788522008731', 'Agir', 2015,
- 'Ficção, Fábula, Infantojuvenil, Clássico',
- 'Um piloto perdido no deserto encontra um pequeno príncipe vindo de outro planeta, que compartilha reflexões simples e profundas sobre amizade, amor e o que realmente importa na vida.',
- 'Ótimo', 29.90, 8, 'https://covers.openlibrary.org/b/isbn/9788522008731-L.jpg', 1),
+('Dom Quixote', 'Miguel de Cervantes', NULL, 'Penguin Clássicos', 2019,
+ 'Clássico, Aventura, Sátira',
+ 'Um pequeno fidalgo enlouquece de tanto ler romances de cavalaria e sai pelo mundo em busca de aventuras imaginárias.',
+ 'Bom', 44.90, 4, NULL),
 
-('Harry Potter e a Pedra Filosofal', 'J.K. Rowling', '9788532511010', 'Rocco', 2000,
+('Orgulho e Preconceito', 'Jane Austen', NULL, 'Penguin Clássicos', 2017,
+ 'Romance, Clássico, Literatura Britânica',
+ 'Elizabeth Bennet enfrenta preconceitos de classe e primeiras impressões equivocadas em seu relacionamento com o Sr. Darcy.',
+ 'Ótimo', 36.90, 6, NULL),
+
+('Crime e Castigo', 'Fiódor Dostoiévski', NULL, 'Editora 34', 2016,
+ 'Clássico, Drama Psicológico, Literatura Russa',
+ 'Um jovem estudante comete um assassinato e mergulha em uma espiral de culpa e redenção nas ruas de São Petersburgo.',
+ 'Bom', 46.90, 4, NULL),
+
+('Harry Potter e a Pedra Filosofal', 'J.K. Rowling', NULL, 'Rocco', 1997,
  'Fantasia, Aventura, Infantojuvenil',
- 'Ao descobrir que é um bruxo, Harry Potter ingressa na Escola de Magia e Bruxaria de Hogwarts e começa a desvendar os mistérios ligados à morte de seus pais.',
- 'Bom', 42.00, 5, 'https://covers.openlibrary.org/b/isbn/9788532511010-L.jpg', 1),
+ 'Um garoto órfão descobre, ao completar onze anos, que é um bruxo e é convidado a estudar na Escola de Magia e Bruxaria de Hogwarts.',
+ 'Ótimo', 49.90, 7, NULL),
 
-('O Senhor dos Anéis: A Sociedade do Anel', 'J.R.R. Tolkien', '9788595084759', 'HarperCollins Brasil', 2019,
+('O Hobbit', 'J.R.R. Tolkien', NULL, 'HarperCollins', 1937,
  'Fantasia, Aventura, Clássico',
- 'Frodo Bolseiro herda um anel de poder capaz de destruir a Terra-média e parte, junto de uma companhia improvável, em uma jornada para destruí-lo antes que caia em mãos erradas.',
- 'Ótimo', 54.90, 3, 'https://covers.openlibrary.org/b/isbn/9788595084759-L.jpg', 1),
+ 'O hobbit Bilbo Bolseiro é arrastado para uma jornada inesperada em busca de um tesouro guardado por um dragão.',
+ 'Bom', 44.90, 5, NULL),
 
-('Duna', 'Frank Herbert', '9788576572539', 'Aleph', 2015,
- 'Ficção Científica, Aventura',
- 'No planeta desértico de Arrakis, o jovem Paul Atreides se vê no centro de disputas políticas, religiosas e ecológicas em torno da especiaria mais valiosa do universo.',
- 'Bom', 59.90, 4, 'https://covers.openlibrary.org/b/isbn/9788576572539-L.jpg', 1),
+('O Senhor dos Anéis: A Sociedade do Anel', 'J.R.R. Tolkien', NULL, 'HarperCollins', 1954,
+ 'Fantasia, Aventura, Clássico',
+ 'Frodo Bolseiro parte em uma jornada perigosa para destruir o Um Anel e impedir o retorno do Senhor do Escuro.',
+ 'Bom', 54.90, 4, NULL),
 
-('O Guia do Mochileiro das Galáxias', 'Douglas Adams', '9788580411642', 'Arqueiro', 2015,
- 'Ficção Científica, Comédia',
- 'Momentos antes da destruição da Terra, Arthur Dent é resgatado por um amigo alienígena e passa a viajar pela galáxia em uma aventura absurda e hilária sobre o sentido da vida.',
- 'Bom', 36.90, 5, 'https://covers.openlibrary.org/b/isbn/9788580411642-L.jpg', 1),
+('Cem Anos de Solidão', 'Gabriel García Márquez', NULL, 'Record', 1967,
+ 'Realismo Mágico, Literatura Latino-Americana, Clássico',
+ 'A saga da família Buendía ao longo de gerações na fictícia cidade de Macondo, entrelaçando realidade e magia.',
+ 'Ótimo', 47.90, 4, NULL),
 
-('O Alquimista', 'Paulo Coelho', '9788576657021', 'Sextante', 2012,
- 'Ficção, Literatura Brasileira',
- 'O pastor Santiago cruza o deserto em busca de um tesouro anunciado em sonho, e descobre pelo caminho lições sobre escutar os próprios desejos e seguir a própria "lenda pessoal".',
- 'Novo', 34.90, 7, 'https://covers.openlibrary.org/b/isbn/9788576657021-L.jpg', 1),
+('A Metamorfose', 'Franz Kafka', NULL, 'Companhia das Letras', 1915,
+ 'Ficção, Clássico, Literatura Alemã',
+ 'Gregor Samsa acorda uma manhã transformado em um inseto monstruoso e precisa lidar com a rejeição da própria família.',
+ 'Bom', 24.90, 6, NULL),
 
-('A Menina que Roubava Livros', 'Markus Zusak', '9788598078279', 'Intrínseca', 2014,
- 'Ficção, Drama Histórico',
- 'Na Alemanha nazista, a pequena Liesel encontra consolo nos livros que rouba, enquanto a Morte, narradora da história, observa a fragilidade e a força das pessoas em tempos de guerra.',
- 'Bom', 44.90, 3, 'https://covers.openlibrary.org/b/isbn/9788598078279-L.jpg', 1),
+('O Apanhador no Campo de Centeio', 'J.D. Salinger', NULL, 'Editora 42', 1951,
+ 'Romance, Clássico, Literatura Norte-Americana',
+ 'Holden Caulfield narra, com ironia e angústia, alguns dias de sua vida em Nova York após ser expulso do colégio interno.',
+ 'Bom', 38.90, 5, NULL),
 
-('Sapiens: Uma Breve História da Humanidade', 'Yuval Noah Harari', '9788525432186', 'L&PM', 2015,
- 'Não Ficção, História, Ciência',
- 'Harari percorre a trajetória da espécie humana, da revolução cognitiva à revolução científica, explorando como mitos compartilhados — dinheiro, nações, religiões — nos permitiram dominar o planeta.',
- 'Ótimo', 49.90, 4, 'https://covers.openlibrary.org/b/isbn/9788525432186-L.jpg', 1),
+('Moby Dick', 'Herman Melville', NULL, 'Penguin Clássicos', 2015,
+ 'Aventura, Clássico, Literatura Norte-Americana',
+ 'O capitão Ahab persegue obsessivamente a baleia branca que lhe tirou a perna, em uma jornada de vingança pelos mares.',
+ 'Regular', 41.90, 3, NULL),
 
-('Homo Deus: Uma Breve História do Amanhã', 'Yuval Noah Harari', '9788535928211', 'Companhia das Letras', 2016,
- 'Não Ficção, Ciência, Futurologia',
- 'Depois de dominar a fome, a guerra e a peste, a humanidade volta seus esforços para novas metas: felicidade permanente, longevidade extrema e até a própria divindade.',
- 'Bom', 52.90, 3, 'https://covers.openlibrary.org/b/isbn/9788535928211-L.jpg', 1),
+('Frankenstein', 'Mary Shelley', NULL, 'Penguin Clássicos', 2018,
+ 'Ficção Científica, Terror, Clássico',
+ 'O cientista Victor Frankenstein cria uma criatura viva a partir de partes de cadáveres — e não consegue lidar com as consequências.',
+ 'Bom', 33.90, 5, NULL),
 
-('Pai Rico, Pai Pobre', 'Robert T. Kiyosaki', '9788550801486', 'Alta Books', 2017,
- 'Economia, Finanças Pessoais, Não Ficção',
- 'Kiyosaki compara os ensinamentos financeiros de duas figuras paternas para defender a ideia de que educação financeira e investimento em ativos importam mais do que apenas ter um bom salário.',
- 'Bom', 39.90, 6, 'https://covers.openlibrary.org/b/isbn/9788550801486-L.jpg', 1),
+('Drácula', 'Bram Stoker', NULL, 'Penguin Clássicos', 2014,
+ 'Terror, Clássico, Literatura Britânica',
+ 'O Conde Drácula deixa a Transilvânia rumo à Inglaterra, espalhando terror por onde passa.',
+ 'Bom', 35.90, 4, NULL),
 
-('Freakonomics', 'Steven D. Levitt, Stephen J. Dubner', '9788535225417', 'Elsevier/Campus', 2007,
- 'Economia, Não Ficção',
- 'Usando ferramentas da economia para investigar perguntas inusitadas do cotidiano, os autores mostram como incentivos escondidos moldam o comportamento humano de formas surpreendentes.',
- 'Regular', 24.90, 4, 'https://covers.openlibrary.org/b/isbn/9788535225417-L.jpg', 1),
-
-('O Poder do Hábito', 'Charles Duhigg', '9788539004119', 'Objetiva', 2012,
- 'Não Ficção, Psicologia, Autoajuda',
- 'Duhigg explora a ciência por trás da formação de hábitos, individuais e organizacionais, e como pequenas mudanças de rotina podem gerar grandes transformações.',
- 'Novo', 37.90, 5, 'https://covers.openlibrary.org/b/isbn/9788539004119-L.jpg', 1);
+('A Culpa é das Estrelas', 'John Green', NULL, 'Intrínseca', 2012,
+ 'Romance, Drama, Infantojuvenil',
+ 'Hazel e Augustus se conhecem em um grupo de apoio a pacientes com câncer e vivem um amor intenso contra o tempo.',
+ 'Novo', 34.90, 7, NULL);

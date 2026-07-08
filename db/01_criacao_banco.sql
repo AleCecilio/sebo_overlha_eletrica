@@ -1,3 +1,8 @@
+-- Garante que o cliente MySQL importe este arquivo como UTF-8, evitando
+-- corrupção de acentos (títulos, nomes) quando o charset padrão do cliente
+-- for latin1 (comum em muitas instalações/ferramentas).
+SET NAMES utf8mb4;
+
 -- ============================================================
 -- SEBO OVELHA ELÉTRICA - Script de Criação do Banco de Dados
 -- Disciplina: Programação II - Web | UEMG - Unidade Passos

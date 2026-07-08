@@ -127,10 +127,16 @@
       document.getElementById(id).textContent = '';
     });
 
-    if (!nome)  { document.getElementById('err-cad-nome').textContent = 'Campo obrigatório.'; return; }
-    if (!email) { document.getElementById('err-cad-email').textContent = 'Campo obrigatório.'; return; }
-    if (!senha || senha.length < 6) { document.getElementById('err-cad-senha').textContent = 'Mínimo de 6 caracteres.'; return; }
+    if (!nome)  { document.getElementById('err-cad-nome').textContent = 'Preencha seu nome.'; return; }
+    if (!email) { document.getElementById('err-cad-email').textContent = 'Preencha seu e-mail.'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      document.getElementById('err-cad-email').textContent = 'Digite um e-mail válido.'; return;
+    }
+    if (!senha || senha.length < 6) { document.getElementById('err-cad-senha').textContent = 'A senha precisa de ao menos 6 caracteres.'; return; }
     if (cpf && !validarCpf(cpf)) { document.getElementById('err-cad-cpf').textContent = 'CPF inválido.'; return; }
+    if (email.toLowerCase().includes('@seboovelhaeletrica') && !codigoAdmin) {
+      document.getElementById('err-cad-codigo-admin').textContent = 'Preencha o código de administrador.'; return;
+    }
 
     const btn = document.getElementById('btn-cadastrar-submit');
     btn.innerHTML = '<span class="spinner"></span>';
@@ -149,7 +155,15 @@
       atualizarUIAuth();
       toast(`Bem-vindo(a), ${data.usuario.nome.split(' ')[0]}!`, 'success');
     } catch (e) {
-      toast(e.mensagem || 'Erro ao criar conta.', 'error');
+      if (e && e.status) {
+        // Erro conhecido da API (ex: 409 e-mail já cadastrado, 400 campo inválido)
+        const alvo = e.status === 409 ? 'err-cad-email' : 'err-cad-nome';
+        document.getElementById(alvo).textContent = e.mensagem || 'Erro ao criar conta.';
+        toast(e.mensagem || 'Erro ao criar conta.', 'error');
+      } else {
+        // Falha de rede/conexão — nunca falha silenciosa
+        toast('Não foi possível conectar ao servidor. Verifique se o backend está rodando.', 'error');
+      }
     } finally {
       if (document.getElementById('btn-cadastrar-submit')) {
         btn.innerHTML = 'Criar Conta';
@@ -187,7 +201,16 @@
       fecharModal();
       abrirModal2FACanal();
     } catch (e) {
-      toast(e.mensagem || 'Credenciais inválidas.', 'error');
+      if (e && e.status) {
+        // Erro conhecido da API (ex: 401 credenciais inválidas)
+        const msg = e.mensagem || 'E-mail/CPF/telefone ou senha incorretos.';
+        errId.textContent = ' ';
+        errSenha.textContent = msg;
+        toast(msg, 'error');
+      } else {
+        // Falha de rede/conexão (backend fora do ar, CORS, etc.) — nunca falha silenciosa
+        toast('Não foi possível conectar ao servidor. Verifique se o backend está rodando.', 'error');
+      }
     } finally {
       if (document.getElementById('btn-login-submit')) {
         btn.innerHTML = 'Continuar';
