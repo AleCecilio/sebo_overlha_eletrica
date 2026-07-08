@@ -2,15 +2,6 @@
 // Preenche automaticamente a capa (imagem_url) de livros sem capa, usando a
 // API pública da Open Library.
 //
-// CORREÇÃO: a versão anterior tentava primeiro achar a capa pelo ISBN
-// cadastrado — e quase todos os livros ficavam sem capa, porque o ISBN de
-// uma edição específica raramente bate exatamente com o que a Open Library
-// tem indexado. Agora a busca por título + autor é a estratégia principal
-// (muito mais tolerante e com taxa de acerto bem maior para obras famosas,
-// que é justamente o critério usado para montar o catálogo — ver
-// db/02_insercao_livros.sql), e o ISBN só é usado como confirmação extra
-// quando disponível.
-//
 // Uso:
 //   node backend/scripts/preencherCapas.js
 //   (ou "npm run capas" dentro da pasta backend/)

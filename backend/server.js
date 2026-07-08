@@ -90,9 +90,9 @@ app.use((err, _req, res, _next) => {
 
 // ─── Inicia o servidor ───────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log('\n╔═══════════════════════════════════════════╗');
-  console.log(`║      Sebo Ovelha Elétrica - Servidor Iniciado      ║`);
-  console.log(`║   🌐  http://localhost:${PORT}                ║`);
-  console.log(`║   📚  Programação II - Web | UEMG Passos   ║`);
-  console.log('╚═══════════════════════════════════════════╝\n');
+  console.log('\n╔═════════════════════════════════════════════╗');
+  console.log(`║    Sebo Ovelha Elétrica - Servidor Iniciado ║`);
+  console.log(`║    http://localhost:${PORT}                 ║`);
+  console.log(`║    Programação II - Web | UEMG Passos       ║`);
+  console.log('╚═════════════════════════════════════════════╝\n');
 });
