@@ -292,12 +292,13 @@ Também é possível logar com o **CPF** ou **telefone** cadastrados (ver `db/03
 
 ## 7. Como Cadastrar uma Conta
 
-1. Na página inicial, clique em **Entrar** (canto superior direito da navbar).
-2. No modal que abre, clique na aba **Cadastrar**.
-3. Preencha os campos: nome, e-mail, telefone (opcional), CPF (opcional) e senha.
+1. Na página inicial, clique no Menu (canto superior esquerdo da navbar).
+2. Clique em **Entrar**
+3. No modal que abre, clique na aba **Cadastrar**.
+4. Preencha os campos: nome, e-mail, telefone (opcional), CPF (opcional) e senha.
    - Se algum campo obrigatório ficar vazio ou inválido (e-mail mal formatado, senha curta, CPF inválido), o sistema avisa exatamente qual campo precisa de atenção — o cadastro não é enviado até estar tudo certo.
-4. Clique em **Criar Conta**.
-5. Pronto: a conta é criada no banco e o **login acontece automaticamente** — você já vê a navbar atualizada com seu nome, sem precisar entrar de novo.
+5. Clique em **Criar Conta**.
+6. Pronto: a conta é criada no banco e o **login acontece automaticamente** — você já vê a navbar atualizada com seu nome, sem precisar entrar de novo.
 
 ### Para criar uma conta de administrador
 
@@ -334,53 +335,53 @@ Base URL: `http://localhost:3000` — todas as respostas em JSON.
 
 | Rota | Método | Finalidade | Auth |
 |---|---|---|---|
-| `/auth/cadastro` | POST | Cria uma nova conta (CLIENTE ou ADMIN) e já retorna o token | ❌ |
-| `/auth/login` | POST | Login com e-mail/CPF/telefone + senha | ❌ |
-| `/auth/2fa/enviar` | POST | Gera e "envia" código 2FA | ❌ |
-| `/auth/2fa/verificar` | POST | Valida código 2FA e retorna o JWT | ❌ |
-| `/auth/google` | POST | Login/cadastro via Google Auth (simulado) | ❌ |
+| `/auth/cadastro` | POST | Cria uma nova conta (CLIENTE ou ADMIN) e já retorna o token | Não |
+| `/auth/login` | POST | Login com e-mail/CPF/telefone + senha | Não |
+| `/auth/2fa/enviar` | POST | Gera e "envia" código 2FA | Não |
+| `/auth/2fa/verificar` | POST | Valida código 2FA e retorna o JWT | Não |
+| `/auth/google` | POST | Login/cadastro via Google Auth (simulado) | Não |
 
 ### Livros
 
 | Rota | Método | Finalidade | Auth |
 |---|---|---|---|
-| `/listar` | GET | Catálogo com busca, filtros e paginação | ❌ |
-| `/generos` | GET | Lista de gêneros distintos existentes no catálogo (alimenta o filtro) | ❌ |
-| `/buscar/:id` | GET | Detalhes completos de um livro | ❌ |
-| `/salvar` | POST | Cadastrar novo livro | ✅ ADMIN |
-| `/editar/:id` | PUT | Atualizar dados de um livro | ✅ ADMIN |
-| `/deletar/:id` | DELETE | Remover livro do catálogo (soft delete) | ✅ ADMIN |
+| `/listar` | GET | Catálogo com busca, filtros e paginação | Não |
+| `/generos` | GET | Lista de gêneros distintos existentes no catálogo (alimenta o filtro) | Não |
+| `/buscar/:id` | GET | Detalhes completos de um livro | Não |
+| `/salvar` | POST | Cadastrar novo livro | ADMIN |
+| `/editar/:id` | PUT | Atualizar dados de um livro | ADMIN |
+| `/deletar/:id` | DELETE | Remover livro do catálogo (soft delete) | ADMIN |
 
 ### Comentários e avaliações
 
 | Rota | Método | Finalidade | Auth |
 |---|---|---|---|
-| `/livros/:id/comentarios` | GET | Lista comentários/avaliações de um livro (máx. 5 mais recentes se houver mais de 10) | ❌ |
-| `/livros/:id/comentarios` | POST | Cria ou atualiza a avaliação do usuário para o livro | ✅ |
+| `/livros/:id/comentarios` | GET | Lista comentários/avaliações de um livro (máx. 5 mais recentes se houver mais de 10) | Não |
+| `/livros/:id/comentarios` | POST | Cria ou atualiza a avaliação do usuário para o livro | Sim |
 
 ### Pedidos
 
 | Rota | Método | Finalidade | Auth |
 |---|---|---|---|
-| `/pedidos/checkout` | POST | Finaliza a compra (cria pedido, desconta estoque) | ✅ |
-| `/pedidos/meus` | GET | Lista os pedidos do usuário autenticado (cliente **ou** admin) | ✅ |
+| `/pedidos/checkout` | POST | Finaliza a compra (cria pedido, desconta estoque) | Sim |
+| `/pedidos/meus` | GET | Lista os pedidos do usuário autenticado (cliente **ou** admin) | Sim |
 
 ### Endereços
 
 | Rota | Método | Finalidade | Auth |
 |---|---|---|---|
-| `/enderecos` | GET | Lista os endereços do usuário autenticado | ✅ |
-| `/enderecos` | POST | Cadastra um novo endereço (máx. 5 por usuário) | ✅ |
-| `/enderecos/:id` | PUT | Atualiza um endereço | ✅ |
-| `/enderecos/:id` | DELETE | Remove um endereço | ✅ |
+| `/enderecos` | GET | Lista os endereços do usuário autenticado | Sim |
+| `/enderecos` | POST | Cadastra um novo endereço (máx. 5 por usuário) | Sim |
+| `/enderecos/:id` | PUT | Atualiza um endereço | Sim |
+| `/enderecos/:id` | DELETE | Remove um endereço | Sim |
 
 ### Conta do usuário
 
 | Rota | Método | Finalidade | Auth |
 |---|---|---|---|
-| `/usuarios/me` | GET | Dados do perfil autenticado | ✅ |
-| `/usuarios/me` | PUT | Atualiza nome, e-mail, telefone ou foto | ✅ |
-| `/usuarios/me` | DELETE | Desativa a própria conta | ✅ |
+| `/usuarios/me` | GET | Dados do perfil autenticado | Sim |
+| `/usuarios/me` | PUT | Atualiza nome, e-mail, telefone ou foto | Sim |
+| `/usuarios/me` | DELETE | Desativa a própria conta | Sim |
 
 ---
 
