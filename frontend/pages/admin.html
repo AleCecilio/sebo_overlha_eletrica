@@ -9,15 +9,66 @@
   <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-<nav class="navbar">
+<!-- ── Navbar (padronizada em todas as páginas, menu sanduíche + Bootstrap Offcanvas) ── -->
+<nav class="navbar sebo-navbar">
+  <button class="navbar-toggler-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral" aria-label="Abrir menu">
+    <i class="fa fa-bars"></i>
+  </button>
+
   <a class="navbar-brand" href="../index.html">
-    <img src="../assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha"> <span>Sebo</span> Ovelha Elétrica</a>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
-    <span id="user-info" style="font-size:.85rem;font-weight:600;color:var(--text-secondary)"></span>
-    <span style="font-size:.7rem;background:var(--gradient-primary);color:#fff;padding:3px 10px;border-radius:var(--radius-full);font-weight:700;letter-spacing:.06em"><i class="fa fa-shield-halved"></i> ADMIN</span>
-    <button class="btn btn-outline" onclick="window.SeBoApp.logout();window.location='../index.html'" style="height:36px;padding:0 16px"><i class="fa fa-right-from-bracket"></i> Sair</button>
+    <img src="../assets/img/ovelha-robo.png" alt="Sebo Ovelha Elétrica" class="logo-ovelha">
+     <span>Sebo</span> Ovelha Elétrica
+  </a>
+
+  <div class="navbar-search">
+    <input type="text" id="search-input" placeholder="Buscar por título, autor ou ISBN..." aria-label="Buscar livros">
+    <button onclick="window.location.href='../index.html'" aria-label="Pesquisar"><i class="fa fa-search"></i></button>
+  </div>
+
+  <div class="navbar-actions">
+    <button class="btn-icon" onclick="window.SeBoApp.toggleDark()" title="Alternar tema"><i class="fa fa-circle-half-stroke"></i></button>
+    <button class="btn-icon" onclick="window.SeBoApp.abrirCarrinho()" title="Carrinho" aria-label="Abrir carrinho">
+      <i class="fa fa-bag-shopping"></i>
+      <span class="cart-badge" style="display:none">0</span>
+    </button>
   </div>
 </nav>
+
+<!-- ── Menu Sanduíche (Offcanvas) — mesmo menu em todas as páginas ── -->
+<div class="offcanvas offcanvas-start sebo-offcanvas" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="menuLateralLabel">
+      <img src="../assets/img/ovelha-robo.png" alt="" class="logo-ovelha" style="width:26px;height:26px"> Menu
+    </h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column">
+
+    <div id="menu-perfil-box" class="menu-perfil-box d-none">
+      <span class="menu-perfil-icone"><i class="fa fa-circle-user"></i></span>
+      <div>
+        <div id="user-info" class="menu-perfil-nome"></div>
+        <span id="badge-admin" class="admin-pill d-none"><i class="fa fa-shield-halved"></i> ADMIN</span>
+      </div>
+    </div>
+
+    <nav class="menu-links">
+      <a href="../index.html" class="menu-link"><i class="fa fa-house"></i> Início</a>
+      <a id="btn-pedidos" href="pedidos.html" class="menu-link d-none"><i class="fa fa-box-open"></i> Meus Pedidos</a>
+      <a id="btn-conta" href="conta.html" class="menu-link d-none"><i class="fa fa-user-gear"></i> Minha Conta</a>
+      <a id="btn-admin" href="admin.html" class="menu-link d-none"><i class="fa fa-sliders"></i> Painel Admin</a>
+    </nav>
+
+    <div class="mt-auto pt-3">
+      <button id="btn-login" class="btn btn-primary w-100" onclick="window.LoginModal.abrir()">
+        <i class="fa fa-right-to-bracket"></i> Entrar
+      </button>
+      <button id="btn-logout" class="btn btn-outline w-100 d-none" onclick="window.SeBoApp.logout(); window.location='../index.html'">
+        <i class="fa fa-right-from-bracket"></i> Sair
+      </button>
+    </div>
+  </div>
+</div>
 
 <div class="admin-layout">
   <aside class="admin-sidebar">

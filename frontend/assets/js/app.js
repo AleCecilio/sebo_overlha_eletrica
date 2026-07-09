@@ -217,27 +217,29 @@ function validarCpf(cpf) {
 
 // ── Atualiza UI de autenticação ───────────────────────────────────────────
 function atualizarUIAuth() {
-  const btnLogin   = document.getElementById("btn-login");
-  const btnLogout  = document.getElementById("btn-logout");
-  const btnPedidos = document.getElementById("btn-pedidos");
-  const btnConta   = document.getElementById("btn-conta");
-  const btnAdmin   = document.getElementById("btn-admin");
-  const userInfo   = document.getElementById("user-info");
-  if (state.usuario) {
-    if (btnLogin)   btnLogin.style.display   = "none";
-    if (btnLogout)  btnLogout.style.display  = "flex";
-    if (btnPedidos) btnPedidos.style.display = "flex";
-    if (btnConta)   btnConta.style.display   = "flex";
-    if (btnAdmin)   btnAdmin.style.display   = state.usuario.perfil === "ADMIN" ? "flex" : "none";
-    if (userInfo)   userInfo.textContent     = state.usuario.nome.split(" ")[0];
-  } else {
-    if (btnLogin)   btnLogin.style.display   = "flex";
-    if (btnLogout)  btnLogout.style.display  = "none";
-    if (btnPedidos) btnPedidos.style.display = "none";
-    if (btnConta)   btnConta.style.display   = "none";
-    if (btnAdmin)   btnAdmin.style.display   = "none";
-    if (userInfo)   userInfo.textContent     = "";
-  }
+  const btnLogin    = document.getElementById("btn-login");
+  const btnLogout   = document.getElementById("btn-logout");
+  const btnPedidos  = document.getElementById("btn-pedidos");
+  const btnConta    = document.getElementById("btn-conta");
+  const btnAdmin    = document.getElementById("btn-admin");
+  const userInfo    = document.getElementById("user-info");
+  const perfilBox   = document.getElementById("menu-perfil-box");
+  const badgeAdmin  = document.getElementById("badge-admin");
+
+  const mostrar = (el, condicao) => { if (el) el.classList.toggle('d-none', !condicao); };
+
+  const logado = !!state.usuario;
+  const admin  = logado && state.usuario.perfil === "ADMIN";
+
+  mostrar(btnLogin,   !logado);
+  mostrar(btnLogout,   logado);
+  mostrar(btnPedidos,  logado);
+  mostrar(btnConta,    logado);
+  mostrar(btnAdmin,    admin);
+  mostrar(perfilBox,   logado);
+  mostrar(badgeAdmin,  admin);
+
+  if (userInfo) userInfo.textContent = logado ? state.usuario.nome.split(" ")[0] : "";
 }
 
 // Exportar para uso nos outros scripts

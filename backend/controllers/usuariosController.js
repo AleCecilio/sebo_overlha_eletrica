@@ -10,7 +10,7 @@ const db = require('../config/db');
 async function meuPerfil(req, res) {
   try {
     const [rows] = await db.execute(
-      `SELECT id, nome, email, telefone, cpf, foto_url, perfil, criado_em
+      `SELECT id, nome, email, telefone, cpf, perfil, criado_em
        FROM usuarios WHERE id = ? LIMIT 1`,
       [req.usuario.id]
     );
@@ -26,11 +26,11 @@ async function meuPerfil(req, res) {
 
 // ────────────────────────────────────────────────────────────────────────────
 // PUT /usuarios/me
-// Body: { nome?, email?, telefone?, foto_url? }
+// Body: { nome?, email?, telefone? }
 // ────────────────────────────────────────────────────────────────────────────
 async function atualizarPerfil(req, res) {
   try {
-    const permitidos = ['nome', 'email', 'telefone', 'foto_url'];
+    const permitidos = ['nome', 'email', 'telefone'];
     const sets   = [];
     const params = [];
 

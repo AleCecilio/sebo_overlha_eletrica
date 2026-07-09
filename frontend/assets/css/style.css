@@ -174,6 +174,27 @@ body.dark .navbar {
   border-bottom-color: rgba(30,45,69,.8);
 }
 
+/* Menu sanduíche (abre o offcanvas com a navegação) */
+.navbar-toggler-custom {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text);
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.navbar-toggler-custom:hover {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .navbar-brand {
   display: flex;
   align-items: center;
@@ -206,10 +227,10 @@ body.dark .navbar {
 
 /* Search */
 .navbar-search {
-  flex: 0 1 auto;      
+  flex: 1 1 auto;
   min-width: 0;
-  max-width: 340px;    
-  margin: 0 16px;       
+  max-width: 560px;      
+  margin: 0 24px;
   display: flex;
   position: relative;
 }
@@ -1618,8 +1639,97 @@ body.dark tr:hover td { background: rgba(59,130,246,.04); }
   font-size: .68rem; font-weight: 700; text-transform: uppercase; color: var(--primary);
   background: rgba(37,99,235,.1); border-radius: var(--radius-full); padding: 2px 8px; margin-left: 8px;
 }
-.conta-avatar {
-  width: 88px; height: 88px; border-radius: 50%; object-fit: cover;
-  border: 3px solid var(--border); background: var(--surface);
-}
 .conta-secao { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   MENU SANDUÍCHE (OFFCANVAS) — navegação unificada em todas as páginas
+   ══════════════════════════════════════════════════════════════════════ */
+.sebo-offcanvas {
+  --bs-offcanvas-width: 180px;
+  width: 250px !important;
+  max-width: 250px !important;
+  background: var(--bg-card);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+}
+.sebo-offcanvas .offcanvas-header {
+  border-bottom: 1px solid var(--border);
+}
+.sebo-offcanvas .offcanvas-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text);
+}
+.sebo-offcanvas .btn-close {
+  filter: none;
+}
+body.dark .sebo-offcanvas .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.menu-perfil-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.menu-perfil-icone {
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.menu-perfil-nome {
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--text);
+}
+.admin-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: #fff;
+  background: var(--gradient-primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  margin-top: 4px;
+}
+
+.menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: .92rem;
+  transition: background var(--transition), color var(--transition);
+}
+.menu-link i { width: 18px; text-align: center; color: var(--text-muted); }
+.menu-link:hover {
+  background: var(--surface);
+  color: var(--primary);
+}
+.menu-link:hover i { color: var(--primary); }
+
+.conta-avatar-icone {
+  font-size: 4rem;
+  line-height: 1;
+  color: var(--primary);
+}
